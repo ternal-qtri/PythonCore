@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 04: Decorators - Vũ Khí Tối Thượng Của Django | Từ Điển Python</title>
+    <meta name="description"
+        content="Giải mã cơ chế hàm bọc hàm @syntax, functools.wraps, decorator có tham số và các decorator thực chiến trong Django.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 04</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link active">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-decorator-syntax" class="sidebar-sublink">&bull; Bản chất hàm bọc hàm @syntax</a>
+                <a href="#sec-functools-wraps" class="sidebar-sublink">&bull; functools.wraps sống còn</a>
+                <a href="#sec-decorator-args" class="sidebar-sublink">&bull; Decorator có tham số</a>
+                <a href="#sec-django-decorators" class="sidebar-sublink">&bull; Decorators cốt lõi trong Django</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 04: Decorators - Vũ Khí Tối Thượng Của Django</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 04 &bull; DECORATORS & METAPROGRAMMING</div>
+                    <h1 class="chapter-title">Decorators: Bản Chất, Kỹ Thuật & Ứng Dụng Trong Django</h1>
+                    <p class="chapter-desc">
+                        Decorator cho phép mở rộng hoặc biến đổi hành vi của một hàm mà không cần sửa đổi mã nguồn gốc
+                        của hàm đó. Trong Django, bảo mật đăng nhập, kiểm tra CSRF token, hay giới hạn phương thức HTTP
+                        đều được thực hiện qua các Decorator đặt trước các view.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Nâng cao (Advanced)</strong></span>
+                        <span class="meta-badge">Mục tiêu: <strong>Viết & Đọc hiểu Decorators</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>16 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Decorator Syntax -->
+                <section class="content-section" id="sec-decorator-syntax">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Bản Chất Của Ký Tự @: Hàm Bọc Hàm (Wrapper)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Cú pháp <code>@my_decorator</code> thực chất chỉ là "đường cú pháp" (syntactic sugar) tương
+                        đương với biểu thức gán: <code>target_func = my_decorator(target_func)</code>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">@decorator_name</span>
+                                <span class="dict-badge badge-core">Core Pattern</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Một hàm nhận hàm đích làm tham số, trả về một hàm bọc (wrapper) thực thi các tác vụ trước và
+                            sau khi hàm gốc chạy.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> basic_decorator.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">def</span> <span class="fn">log_execution</span>(func):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="builtin">print</span>(<span class="str">f"🚀 [START] Đang chuẩn bị gọi hàm '{func.__name__}'..."</span>)
+        result = func(*args, **kwargs)
+        <span class="builtin">print</span>(<span class="str">f"🏁 [DONE] Kết thúc hàm '{func.__name__}'!"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="comment"># Áp dụng decorator bằng ký hiệu @</span>
+<span class="dec">@log_execution</span>
+<span class="kw">def</span> <span class="fn">render_dashboard</span>(username):
+    <span class="builtin">print</span>(<span class="str">f"   -> Đang tải trang quản trị cho tài khoản: {username}"</span>)
+    <span class="kw">return</span> <span class="str">"HTML Content Rendered"</span>
+
+<span class="comment"># Gọi hàm bình thường:</span>
+output = render_dashboard(<span class="str">"admin_qtri"</span>)
+<span class="builtin">print</span>(<span class="str">"Kết quả trả về:"</span>, output)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python basic_decorator.py
+🚀 [START] Đang chuẩn bị gọi hàm 'render_dashboard'...
+   -> Đang tải trang quản trị cho tài khoản: admin_qtri
+🏁 [DONE] Kết thúc hàm 'render_dashboard'!
+Kết quả trả về: HTML Content Rendered</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trước khi nội dung hàm view của bạn được chạy, Django dùng Decorator để: kiểm tra xem
+                                    user đã đăng nhập chưa, tính toán thời gian phản hồi (response time), hoặc xác minh
+                                    CSRF token.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: functools.wraps -->
+                <section class="content-section" id="sec-functools-wraps">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Tại Sao Bắt Buộc Phải Dùng functools.wraps?</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi bọc hàm bằng wrapper, nếu không có <code>@functools.wraps(func)</code>, tên hàm gốc
+                        <code>__name__</code> và tài liệu docstring <code>__doc__</code> sẽ bị ghi đè thành
+                        <code>wrapper</code>! Điều này gây lỗi nghiêm trọng cho bộ định tuyến URL của Django.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">from functools import wraps</span>
+                                <span class="dict-badge badge-core">Metadata Preservation</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> wraps_comparison.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> functools <span class="kw">import</span> wraps
+
+<span class="comment"># ❌ Decorator KHÔNG dùng wraps (Nguy hiểm!)</span>
+<span class="kw">def</span> <span class="fn">bad_decorator</span>(func):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="kw">return</span> func(*args, **kwargs)
+    <span class="kw">return</span> wrapper
+
+<span class="comment"># ✅ Decorator CHUẨN dùng @wraps</span>
+<span class="kw">def</span> <span class="fn">good_decorator</span>(func):
+    <span class="dec">@wraps(func)</span>  <span class="comment"># Sao chép metadata của func gốc sang wrapper</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        <span class="kw">return</span> func(*args, **kwargs)
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@bad_decorator</span>
+<span class="kw">def</span> <span class="fn">view_profile</span>():
+    <span class="str">"""Hàm hiển thị trang cá nhân"""</span>
+    <span class="kw">pass</span>
+
+<span class="dec">@good_decorator</span>
+<span class="kw">def</span> <span class="fn">view_settings</span>():
+    <span class="str">"""Hàm hiển thị trang cài đặt"""</span>
+    <span class="kw">pass</span>
+
+<span class="builtin">print</span>(<span class="str">"Tên hàm view_profile:"</span>, view_profile.__name__)
+<span class="builtin">print</span>(<span class="str">"Tên hàm view_settings:"</span>, view_settings.__name__)
+<span class="builtin">print</span>(<span class="str">"Docstring view_settings:"</span>, view_settings.__doc__)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python wraps_comparison.py
+Tên hàm view_profile: wrapper  <span class="comment"># ❌ Bị mất tên gốc!</span>
+Tên hàm view_settings: view_settings <span style="color: #6ee7b7;"># ✅ Giữ nguyên tên gốc!</span>
+Docstring view_settings: Hàm hiển thị trang cài đặt</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Hậu quả trong Django nếu thiếu wraps:</h4>
+                                <p>Hàm <code>reverse('view_name')</code> trong <code>django.urls</code> hoặc các công cụ
+                                    tự động sinh tài liệu Swagger/OpenAPI sẽ không thể nhận diện được tên thật của view,
+                                    dẫn đến việc reverse URL thất bại hoàn toàn.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Decorators with Arguments -->
+                <section class="content-section" id="sec-decorator-args">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Tự Tạo Decorator Nhận Tham Số (3 Lớp Lồng Nhau)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi bạn muốn truyền tham số cấu hình vào decorator (ví dụ danh sách quyền cho phép:
+                        <code>@roles_allowed(["admin", "manager"])</code>), chúng ta cần một hàm bao ngoài cùng nhận
+                        tham số đó rồi trả về decorator.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">def decorator_factory(*config_args)</span>
+                                <span class="dict-badge badge-advanced">Custom Auth Decorator</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> custom_role_decorator.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> functools <span class="kw">import</span> wraps
+
+<span class="comment"># Tầng 1: Hàm nhận tham số cấu hình</span>
+<span class="kw">def</span> <span class="fn">roles_allowed</span>(allowed_roles_list):
+    <span class="comment"># Tầng 2: Decorator nhận hàm đích func</span>
+    <span class="kw">def</span> <span class="fn">decorator</span>(func):
+        <span class="dec">@wraps(func)</span>
+        <span class="comment"># Tầng 3: Wrapper thực thi khi hàm được gọi</span>
+        <span class="kw">def</span> <span class="fn">wrapper</span>(request, *args, **kwargs):
+            user_role = request.get(<span class="str">"role"</span>)
+            <span class="kw">if</span> user_role <span class="kw">not in</span> allowed_roles_list:
+                <span class="builtin">print</span>(<span class="str">f"⛔ 403 Forbidden: Role '{user_role}' không có quyền truy cập!"</span>)
+                <span class="kw">return</span> <span class="str">"HTTP 403 Forbidden"</span>
+            
+            <span class="builtin">print</span>(<span class="str">f"✅ Quyền hợp lệ ({user_role}), cho phép tiếp tục..."</span>)
+            <span class="kw">return</span> func(request, *args, **kwargs)
+        <span class="kw">return</span> wrapper
+    <span class="kw">return</span> decorator
+
+<span class="comment"># Áp dụng vào view:</span>
+<span class="dec">@roles_allowed(["admin", "superadmin"])</span>
+<span class="kw">def</span> <span class="fn">delete_database_view</span>(request):
+    <span class="kw">return</span> <span class="str">"Đã dọn sạch database!"</span>
+
+user_guest = {<span class="str">"name"</span>: <span class="str">"Tom"</span>, <span class="str">"role"</span>: <span class="str">"guest"</span>}
+user_admin = {<span class="str">"name"</span>: <span class="str">"Sarah"</span>, <span class="str">"role"</span>: <span class="str">"admin"</span>}
+
+<span class="builtin">print</span>(<span class="str">"--- Thử nghiệm 1 (Guest) ---"</span>)
+delete_database_view(user_guest)
+
+<span class="builtin">print</span>(<span class="str">"\n--- Thử nghiệm 2 (Admin) ---"</span>)
+res = delete_database_view(user_admin)
+<span class="builtin">print</span>(<span class="str">"Kết quả:"</span>, res)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python custom_role_decorator.py
+--- Thử nghiệm 1 (Guest) ---
+⛔ 403 Forbidden: Role 'guest' không có quyền truy cập!
+
+--- Thử nghiệm 2 (Admin) ---
+✅ Quyền hợp lệ (admin), cho phép tiếp tục...
+Kết quả: Đã dọn sạch database!</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Django Builtin Decorators -->
+                <section class="content-section" id="sec-django-decorators">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Các Decorators Cốt Lõi Tích Hợp Sẵn Trong Django</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi làm việc với Django views thực tế, bạn sẽ dùng các decorator này mỗi ngày:
+                    </p>
+
+                    <div class="dict-table-container">
+                        <table class="dict-table">
+                            <thead>
+                                <tr>
+                                    <th>Decorator</th>
+                                    <th>Module Import</th>
+                                    <th>Ý nghĩa & Hành vi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>@login_required</code></td>
+                                    <td><code>django.contrib.auth.decorators</code></td>
+                                    <td>Chặn người dùng chưa đăng nhập, tự động redirect sang trang
+                                        <code>/login/?next=...</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>@permission_required('app.perm')</code></td>
+                                    <td><code>django.contrib.auth.decorators</code></td>
+                                    <td>Kiểm tra xem tài khoản có mã quyền hạn cụ thể hay không</td>
+                                </tr>
+                                <tr>
+                                    <td><code>@require_http_methods(["GET", "POST"])</code></td>
+                                    <td><code>django.views.decorators.http</code></td>
+                                    <td>Chỉ cho phép các phương thức HTTP chỉ định; phương thức khác trả về
+                                        <code>HttpResponseNotAllowed (405)</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>@require_POST</code></td>
+                                    <td><code>django.views.decorators.http</code></td>
+                                    <td>Chỉ cho phép duy nhất phương thức POST (rất tiện cho view xử lý nút Delete hoặc
+                                        Like)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>@csrf_exempt</code></td>
+                                    <td><code>django.views.decorators.csrf</code></td>
+                                    <td>Bỏ qua kiểm tra CSRF token cho view (thường dùng cho Webhook từ bên thứ 3 như
+                                        Stripe/VNPAY)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-03-functions-args-kwargs.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 03: Hàm & *args / **kwargs</span>
+                        </div>
+                    </a>
+                    <a href="chapter-05-oop-foundations.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 05: OOP Nền Tảng Cho Django &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

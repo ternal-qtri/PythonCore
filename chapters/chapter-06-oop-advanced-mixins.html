@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 06: OOP Nâng Cao, Dunder Methods & Mixins | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Khám phá __str__ trong Django Admin, @property computed fields, MRO và kỹ thuật Mixin trong Class-Based Views.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 06</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link active">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-dunder-str" class="sidebar-sublink">&bull; Magic Method __str__ và Admin</a>
+                <a href="#sec-property" class="sidebar-sublink">&bull; @property: Cột ảo trên Model</a>
+                <a href="#sec-class-static-method" class="sidebar-sublink">&bull; @classmethod & @staticmethod</a>
+                <a href="#sec-mro" class="sidebar-sublink">&bull; Đa kế thừa & Thứ tự MRO</a>
+                <a href="#sec-mixins" class="sidebar-sublink">&bull; Mixins trong Class-Based Views</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 06: OOP Nâng Cao, Dunder Methods & Mixins</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 06 &bull; ADVANCED OOP & MIXINS</div>
+                    <h1 class="chapter-title">Dunder Methods, Thuộc Tính Ảo & Mixins Trong Django</h1>
+                    <p class="chapter-desc">
+                        Khai phá các cơ chế nội tại tinh vi nhất của Python OOP: từ phương thức ma thuật
+                        <code>__str__</code> giúp Django Admin hiển thị tên bản ghi rõ ràng, thuộc tính
+                        <code>@property</code> để tính toán dữ liệu động, đến cơ chế <code>Mixins & MRO</code> vận hành
+                        các Class-Based Views (CBV).
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Chuyên gia (Expert)</strong></span>
+                        <span class="meta-badge">Trọng tâm: <strong>Admin, Models & CBV</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>16 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Dunder str -->
+                <section class="content-section" id="sec-dunder-str">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Magic Method __str__ & Hiển Thị Trên Django Admin</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi bạn in một đối tượng hoặc hiển thị trong bảng quản trị Django Admin, nếu không có hàm
+                        <code>__str__</code>, bạn sẽ chỉ thấy dòng chữ vô nghĩa dạng:
+                        <code>&lt;Post object (1)&gt;</code>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">def __str__(self) -> str</span>
+                                <span class="dict-badge badge-django">Mandatory on Models</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Hàm ma thuật quy định chuỗi văn bản đại diện cho đối tượng khi được gọi bởi
+                            <code>str(obj)</code>, <code>print(obj)</code> hoặc hiển thị trên giao diện người dùng.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> dunder_str_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Trường hợp 1: Không định nghĩa __str__</span>
+<span class="kw">class</span> <span class="cls">BadArticleModel</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, id, title):
+        self.id = id
+        self.title = title
+
+<span class="comment"># Trường hợp 2: Có định nghĩa __str__ chuẩn Django</span>
+<span class="kw">class</span> <span class="cls">GoodArticleModel</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, id, title, author):
+        self.id = id
+        self.title = title
+        self.author = author
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(self):
+        <span class="kw">return</span> <span class="str">f"[{self.id}] {self.title} (Tác giả: {self.author})"</span>
+
+bad_item = BadArticleModel(<span class="num">1</span>, <span class="str">"Bản ghi lỗi hiển thị"</span>)
+good_item = GoodArticleModel(<span class="num">101</span>, <span class="str">"Kiến Trúc Django Chuẩn"</span>, <span class="str">"qtri"</span>)
+
+<span class="builtin">print</span>(<span class="str">"Khi không có __str__:"</span>, bad_item)
+<span class="builtin">print</span>(<span class="str">"Khi có __str__ chuẩn:"</span>, good_item)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python dunder_str_demo.py
+Khi không có __str__: &lt;__main__.BadArticleModel object at 0x7f9a12c4&gt;
+Khi có __str__ chuẩn: [101] Kiến Trúc Django Chuẩn (Tác giả: qtri)</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong Django Admin, danh sách chọn bài viết, tag, hoặc danh mục sản phẩm (Foreign Key
+                                    dropdown) sẽ gọi trực tiếp phương thức <code>__str__</code> của Model để hiển thị
+                                    nhãn cho người dùng bấm chọn. <strong>Mọi Model bạn viết trong Django đều nên có hàm
+                                        <code>__str__</code>!</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Property -->
+                <section class="content-section" id="sec-property">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. @property: Tạo Thuộc Tính Tính Toán (Computed Field)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Không cần tạo thêm cột trong database gây lãng phí dung lượng. <code>@property</code> cho phép
+                        biến một hàm thành một thuộc tính chỉ đọc (getter), gọi không cần dấu ngoặc tròn
+                        <code>()</code>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">@property</span>
+                                <span class="dict-badge badge-core">Virtual Attributes</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> property_model.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">UserAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, first_name, last_name, points):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.points = points
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">full_name</span>(self):
+        <span class="str">"""Tự động ghép họ và tên đầy đủ"""</span>
+        <span class="kw">return</span> <span class="str">f"{self.first_name} {self.last_name}"</span>
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">is_vip</span>(self):
+        <span class="str">"""Kiểm tra điều kiện tài khoản VIP"""</span>
+        <span class="kw">return</span> self.points &gt;= <span class="num">1000</span>
+
+user = UserAccount(<span class="str">"Nguyễn"</span>, <span class="str">"Quốc Trị"</span>, <span class="num">1500</span>)
+
+<span class="comment"># Truy cập như thuộc tính bình thường (không có ngoặc đơn ())!</span>
+<span class="builtin">print</span>(<span class="str">"Họ và tên:"</span>, user.full_name)
+<span class="builtin">print</span>(<span class="str">"Tài khoản VIP?"</span>, user.is_vip)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python property_model.py
+Họ và tên: Nguyễn Quốc Trị
+Tài khoản VIP? True</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong Django Templates, bạn không thể gọi hàm kèm tham số hay ngoặc tròn. Nhưng nhờ
+                                    có <code>@property</code>, trong file HTML bạn có thể viết trực tiếp:
+                                    <code>&lt;h1&gt;{{ user.full_name }}&lt;/h1&gt;</code> và
+                                    <code>{% if user.is_vip %} Huy hiệu VIP {% endif %}</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Classmethod and Staticmethod -->
+                <section class="content-section" id="sec-class-static-method">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. @classmethod & @staticmethod</h2>
+                    </div>
+                    <p class="section-lead">
+                        Phân biệt các loại phương thức trong Python và cách Django dùng chúng để tạo Model Managers và
+                        Helper functions.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">@classmethod vs @staticmethod</span>
+                                <span class="dict-badge badge-core">Method Types</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> class_static_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">Order</span>:
+    TAX_RATE = <span class="num">0.08</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, order_id, subtotal):
+        self.order_id = order_id
+        self.subtotal = subtotal
+
+    <span class="comment"># 1. Instance Method: có self</span>
+    <span class="kw">def</span> <span class="fn">calculate_total</span>(self):
+        <span class="kw">return</span> self.subtotal * (<span class="num">1</span> + Order.TAX_RATE)
+
+    <span class="comment"># 2. Class Method: có cls, thường làm Factory khởi tạo</span>
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_raw_payload</span>(cls, payload):
+        <span class="kw">return</span> cls(order_id=payload[<span class="str">"id"</span>], subtotal=payload[<span class="str">"amount"</span>])
+
+    <span class="comment"># 3. Static Method: độc lập, không self không cls</span>
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">format_currency</span>(amount):
+        <span class="kw">return</span> <span class="str">f"{amount:,.0f} đ"</span>
+
+<span class="comment"># Dùng classmethod tạo instance từ dict:</span>
+raw_data = {<span class="str">"id"</span>: <span class="str">"ORD-999"</span>, <span class="str">"amount"</span>: <span class="num">500000</span>}
+ord_obj = Order.from_raw_payload(raw_data)
+
+<span class="builtin">print</span>(<span class="str">"Mã đơn hàng:"</span>, ord_obj.order_id)
+<span class="builtin">print</span>(<span class="str">"Tổng tiền đã gồm thuế:"</span>, Order.format_currency(ord_obj.calculate_total()))</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python class_static_demo.py
+Mã đơn hàng: ORD-999
+Tổng tiền đã gồm thuế: 540,000 đ</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: MRO -->
+                <section class="content-section" id="sec-mro">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Đa Kế Thừa & Thứ Tự Phân Giải MRO (Method Resolution Order)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Python cho phép một lớp kế thừa từ nhiều lớp cha cùng lúc. Thuật toán C3 Linearization quyết
+                        định thứ tự Python tìm kiếm hàm: từ trái sang phải trong danh sách kế thừa.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">ClassName.__mro__</span>
+                                <span class="dict-badge badge-advanced">MRO Inspector</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> mro_inspection.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">BaseView</span>:
+    <span class="kw">def</span> <span class="fn">dispatch</span>(self):
+        <span class="builtin">print</span>(<span class="str">"1. BaseView.dispatch: Xử lý request cơ bản"</span>)
+
+<span class="kw">class</span> <span class="cls">AuthMixin</span>:
+    <span class="kw">def</span> <span class="fn">dispatch</span>(self):
+        <span class="builtin">print</span>(<span class="str">"🔒 AuthMixin.dispatch: Kiểm tra đăng nhập trước!"</span>)
+        <span class="builtin">super</span>().dispatch()
+
+<span class="comment"># Thứ tự đúng: Mixin ở trước, BaseView ở sau</span>
+<span class="kw">class</span> <span class="cls">SecureDashboardView</span>(AuthMixin, BaseView):
+    <span class="kw">pass</span>
+
+view_obj = SecureDashboardView()
+view_obj.dispatch()
+
+<span class="builtin">print</span>(<span class="str">"\nThứ tự duyệt MRO:"</span>)
+<span class="kw">for</span> idx, cls <span class="kw">in</span> <span class="builtin">enumerate</span>(SecureDashboardView.__mro__):
+    <span class="builtin">print</span>(<span class="str">f" [{idx}] {cls.__name__}"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python mro_inspection.py
+🔒 AuthMixin.dispatch: Kiểm tra đăng nhập trước!
+1. BaseView.dispatch: Xử lý request cơ bản
+
+Thứ tự duyệt MRO:
+ [0] SecureDashboardView
+ [1] AuthMixin
+ [2] BaseView
+ [3] object</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Mixins in Django -->
+                <section class="content-section" id="sec-mixins">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">5. Mixins Trong Django Class-Based Views (CBV)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Trong Django, Mixin là một lớp nhỏ độc lập cung cấp thêm chức năng (như xác thực, phân quyền,
+                        lọc theo user).
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">class MyView(LoginRequiredMixin, ListView)</span>
+                                <span class="dict-badge badge-django">CBV Rule</span>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🚨</div>
+                            <div class="box-content">
+                                <h4>QUY TẮC BẮT BUỘC VỀ THỨ TỰ KẾ THỪA TRONG DJANGO CBV:</h4>
+                                <p>
+                                    <strong>Mixin LUÔN PHẢI ĐỨNG BÊN TRÁI CỦA LỚP VIEW CHÍNH!</strong><br>
+                                    ✅
+                                    <code>class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):</code><br>
+                                    ❌ <code>class PostUpdateView(UpdateView, LoginRequiredMixin):</code> &rarr;
+                                    <strong>BỊ LỖI BẢO MẬT!</strong> Do thứ tự MRO, <code>UpdateView</code> sẽ chạy
+                                    trước và trả về HTML form trước khi <code>LoginRequiredMixin</code> kịp kiểm tra
+                                    user đã đăng nhập hay chưa!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-05-oop-foundations.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 05: OOP Nền Tảng Cho Django</span>
+                        </div>
+                    </a>
+                    <a href="chapter-07-modules-packages.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 07: Modules & Imports &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 09: Context Managers, Generators & File I/O | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Làm chủ câu lệnh with, transaction.atomic(), yield và streaming dữ liệu lớn trong Django, xử lý đường dẫn chuẩn với pathlib.Path.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 09</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link active">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-context-managers" class="sidebar-sublink">&bull; with & Context Managers</a>
+                <a href="#sec-transaction" class="sidebar-sublink">&bull; Giải mã transaction.atomic()</a>
+                <a href="#sec-generators" class="sidebar-sublink">&bull; yield & Streaming dữ liệu</a>
+                <a href="#sec-pathlib" class="sidebar-sublink">&bull; pathlib.Path & BASE_DIR</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 09: Context Managers, Generators & File I/O</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 09 &bull; RESOURCE EFFICIENCY</div>
+                    <h1 class="chapter-title">Context Managers, Generators & Xử Lý Dữ Liệu Tối Ưu</h1>
+                    <p class="chapter-desc">
+                        Lập trình Web quy mô lớn đòi hỏi kiểm soát tài nguyên nghiêm ngặt: đảm bảo đóng mở kết nối cơ sở
+                        dữ liệu an toàn (Database Transactions) và xuất dữ liệu hàng trăm ngàn dòng mà không làm sập
+                        server vì tràn bộ nhớ RAM.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Nâng cao (Performance)</strong></span>
+                        <span class="meta-badge">Kỹ thuật: <strong>Lazy Evaluation & Transactions</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>16 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Context Managers -->
+                <section class="content-section" id="sec-context-managers">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Câu Lệnh with & Giao Thức Context Manager (__enter__, __exit__)
+                        </h2>
+                    </div>
+                    <p class="section-lead">
+                        Bất cứ khi nào bạn thấy câu lệnh <code>with something:</code>, Python đang âm thầm gọi phương
+                        thức <code>__enter__</code> khi bắt đầu khối và <code>__exit__</code> khi kết thúc khối (kể cả
+                        khi bên trong bị văng lỗi).
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">with ContextManager() as resource</span>
+                                <span class="dict-badge badge-core">Safe Resource Management</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> context_manager_protocol.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">DatabaseLock</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, resource_name):
+        self.resource_name = resource_name
+
+    <span class="kw">def</span> <span class="fn">__enter__</span>(self):
+        <span class="builtin">print</span>(<span class="str">f"🔒 [1. ENTER] Khóa tài nguyên '{self.resource_name}' độc quyền"</span>)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">__exit__</span>(self, exc_type, exc_val, exc_tb):
+        <span class="builtin">print</span>(<span class="str">f"🔓 [3. EXIT] Giải phóng khóa cho '{self.resource_name}'"</span>)
+        <span class="kw">if</span> exc_type:
+            <span class="builtin">print</span>(<span class="str">f"   ⚠️ Phát hiện ngoại lệ trong khối with: {exc_val}"</span>)
+            <span class="comment"># Trả về False để Python tiếp tục ném lỗi lên trên</span>
+            <span class="kw">return</span> <span class="kw">False</span>
+        <span class="kw">return</span> <span class="kw">True</span>
+
+<span class="comment"># Sử dụng câu lệnh with:</span>
+<span class="kw">with</span> DatabaseLock(<span class="str">"order_table"</span>):
+    <span class="builtin">print</span>(<span class="str">"   ⚡ [2. EXECUTE] Đang xử lý tính tiền đơn hàng..."</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python context_manager_protocol.py
+🔒 [1. ENTER] Khóa tài nguyên 'order_table' độc quyền
+   ⚡ [2. EXECUTE] Đang xử lý tính tiền đơn hàng...
+🔓 [3. EXIT] Giải phóng khóa cho 'order_table'</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: transaction.atomic -->
+                <section class="content-section" id="sec-transaction">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Giải Mã transaction.atomic() Trong Django</h2>
+                    </div>
+                    <p class="section-lead">
+                        Trong thanh toán online, bạn cần: (1) Trừ tiền tài khoản người gửi & (2) Cộng tiền tài khoản
+                        người nhận. Nếu bước 2 bị lỗi mất điện, bước 1 bắt buộc phải được <strong>Rollback (hoàn
+                            tác)</strong>!
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">with transaction.atomic():</span>
+                                <span class="dict-badge badge-django">Database Consistency</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> transaction_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> contextlib <span class="kw">import</span> contextmanager
+
+<span class="comment"># Tự mô phỏng cách Django xây dựng transaction.atomic()</span>
+<span class="dec">@contextmanager</span>
+<span class="kw">def</span> <span class="fn">atomic_transaction</span>():
+    <span class="builtin">print</span>(<span class="str">"BEGIN TRANSACTION; (Bắt đầu chuỗi thao tác CSDL)"</span>)
+    <span class="kw">try</span>:
+        <span class="kw">yield</span>  <span class="comment"># Nhường quyền cho code bên trong khối with chạy</span>
+        <span class="builtin">print</span>(<span class="str">"COMMIT; (✅ Toàn bộ thao tác thành công, chốt lưu CSDL)"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="builtin">print</span>(<span class="str">f"ROLLBACK; (❌ Có lỗi: '{e}' -> Hoàn tác mọi thay đổi về số dư ban đầu!)"</span>)
+        <span class="kw">raise</span>
+
+<span class="comment"># Giả lập chuyển tiền bị lỗi ở giữa:</span>
+<span class="kw">try</span>:
+    <span class="kw">with</span> atomic_transaction():
+        <span class="builtin">print</span>(<span class="str">" -> Bước 1: Trừ 500,000 đ tài khoản A"</span>)
+        <span class="comment"># Giả lập lỗi ném ra từ cổng thanh toán</span>
+        <span class="kw">raise</span> ConnectionError(<span class="str">"Mất kết nối với ngân hàng B!"</span>)
+        <span class="builtin">print</span>(<span class="str">" -> Bước 2: Cộng 500,000 đ tài khoản B"</span>)
+<span class="kw">except</span> ConnectionError:
+    <span class="builtin">print</span>(<span class="str">"Thông báo: Tiền của bạn không bị mất."</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python transaction_demo.py
+BEGIN TRANSACTION; (Bắt đầu chuỗi thao tác CSDL)
+ -> Bước 1: Trừ 500,000 đ tài khoản A
+ROLLBACK; (❌ Có lỗi: 'Mất kết nối với ngân hàng B!' -> Hoàn tác mọi thay đổi về số dư ban đầu!)
+Thông báo: Tiền của bạn không bị mất.</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong <code>views.py</code>, bạn chỉ cần viết:
+                                    <code>with transaction.atomic(): user.save(); profile.save(); order.save()</code>.
+                                    Nếu có bất kỳ dòng nào bị lỗi, Django sẽ hoàn tác toàn bộ thay đổi trong database tự
+                                    động mà bạn không cần phải viết code dọn dẹp thủ công.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Generators & yield -->
+                <section class="content-section" id="sec-generators">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Generators, yield & Xuất Dữ Liệu Lớn (Streaming)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Một hàm chứa từ khóa <code>yield</code> sẽ trở thành một Generator. Thay vì tính toán toàn bộ
+                        danh sách rồi giữ trong RAM, nó chỉ sinh ra 1 phần tử tại một thời điểm (Lazy Evaluation).
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">yield & StreamingHttpResponse</span>
+                                <span class="dict-badge badge-django">Memory Saver</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> stream_csv_generator.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">import</span> sys
+
+<span class="comment"># ❌ Cách thường: Tạo mảng 500,000 số trong RAM</span>
+full_list = [i <span class="kw">for</span> i <span class="kw">in</span> <span class="builtin">range</span>(<span class="num">500_000</span>)]
+<span class="builtin">print</span>(<span class="str">f"Dung lượng RAM của List: {sys.getsizeof(full_list):,} bytes"</span>)
+
+<span class="comment"># ✅ Cách dùng Generator: Sinh từng dòng khi cần</span>
+<span class="kw">def</span> <span class="fn">export_large_csv_stream</span>():
+    <span class="kw">yield</span> <span class="str">"id,username,email\n"</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="builtin">range</span>(<span class="num">1</span>, <span class="num">4</span>):
+        <span class="comment"># Mỗi lần chỉ sinh 1 dòng CSV</span>
+        <span class="kw">yield</span> <span class="str">f"{i},user_{i},user_{i}@example.com\n"</span>
+
+gen = export_large_csv_stream()
+<span class="builtin">print</span>(<span class="str">f"Dung lượng RAM của Generator: {sys.getsizeof(gen)} bytes (Siêu nhẹ!)"</span>)
+
+<span class="builtin">print</span>(<span class="str">"\nNội dung stream tải về trình duyệt:"</span>)
+<span class="kw">for</span> chunk <span class="kw">in</span> gen:
+    <span class="builtin">print</span>(chunk, end=<span class="str">""</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python stream_csv_generator.py
+Dung lượng RAM của List: 4,290,016 bytes
+Dung lượng RAM của Generator: 200 bytes (Siêu nhẹ!)
+
+Nội dung stream tải về trình duyệt:
+id,username,email
+1,user_1,user_1@example.com
+2,user_2,user_2@example.com
+3,user_3,user_3@example.com</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Khi người dùng yêu cầu xuất file Excel báo cáo gồm 100,000 đơn hàng, nếu dùng
+                                    <code>HttpResponse</code> thông thường, server sẽ nạp toàn bộ vào RAM gây tràn bộ
+                                    nhớ (Out of Memory) làm restart app. Thay vào đó, Django cung cấp
+                                    <code>StreamingHttpResponse(export_generator(), content_type="text/csv")</code> kết
+                                    hợp với <code>QuerySet.iterator()</code> để truyền dữ liệu thẳng xuống client từng
+                                    chunk một!</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: pathlib -->
+                <section class="content-section" id="sec-pathlib">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. pathlib.Path: Chuẩn Đường Dẫn Hiện Đại Trong settings.py</h2>
+                    </div>
+                    <p class="section-lead">
+                        Từ Django 3.1 trở lên, toàn bộ hệ thống đường dẫn chuyển sang dùng thư viện <code>pathlib</code>
+                        chuẩn Python 3 thay thế hoàn toàn cho <code>os.path.join()</code> cồng kềnh.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">from pathlib import Path; BASE_DIR / 'subfolder'</span>
+                                <span class="dict-badge badge-core">Modern Path API</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> pathlib_django_settings.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="comment"># Cách định nghĩa BASE_DIR chuẩn trong settings.py:</span>
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+<span class="comment"># Toán tử / thanh lịch để nối đường dẫn:</span>
+TEMPLATES_DIR = BASE_DIR / <span class="str">"templates"</span>
+STATIC_DIR = BASE_DIR / <span class="str">"static"</span>
+MEDIA_ROOT = BASE_DIR / <span class="str">"media"</span>
+DATABASE_FILE = BASE_DIR / <span class="str">"db.sqlite3"</span>
+
+<span class="builtin">print</span>(<span class="str">"Thư mục gốc BASE_DIR:"</span>, BASE_DIR)
+<span class="builtin">print</span>(<span class="str">"Thư mục Templates:"</span>, TEMPLATES_DIR)
+<span class="builtin">print</span>(<span class="str">"File SQLite DB:"</span>, DATABASE_FILE)
+<span class="builtin">print</span>(<span class="str">"Đuôi mở rộng của database:"</span>, DATABASE_FILE.suffix)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python pathlib_django_settings.py
+Thư mục gốc BASE_DIR: /home/user/my_django_project
+Thư mục Templates: /home/user/my_django_project/templates
+File SQLite DB: /home/user/my_django_project/db.sqlite3
+Đuôi mở rộng của database: .sqlite3</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-08-exceptions-logging.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 08: Ngoại Lệ & Logging</span>
+                        </div>
+                    </a>
+                    <a href="chapter-10-modern-python-async.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 10: Modern Python & Async &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

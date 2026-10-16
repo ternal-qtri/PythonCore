@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 10: Modern Python - Type Hints, Dataclasses & Async Views | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Làm chủ Type Hints, Dataclasses và lập trình bất đồng bộ Async/Await trong Django 4/5 và Django Ninja.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 10</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link active">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-type-hints" class="sidebar-sublink">&bull; Type Hints & Tự động sinh API</a>
+                <a href="#sec-dataclasses" class="sidebar-sublink">&bull; Dataclasses DTO không cần Model</a>
+                <a href="#sec-async-await" class="sidebar-sublink">&bull; Async / Await trong Django 5</a>
+                <a href="#sec-roadmap-checklist" class="sidebar-sublink">&bull; Checklist 7 bước sẵn sàng Django</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 10: Modern Python - Type Hints, Dataclasses & Async Views</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 10 &bull; MODERN PYTHON & FUTURE DJANGO</div>
+                    <h1 class="chapter-title">Python Hiện Đại: Type Hints, Dataclasses & Bất Đồng Bộ Async</h1>
+                    <p class="chapter-desc">
+                        Chào mừng bạn đến với chương cuối cùng! Tại đây, bạn sẽ làm quen với các tính năng tinh hoa của
+                        Python hiện đại (Python 3.10+) đang định hình thế hệ framework mới như Django 4.2 LTS, Django
+                        5.x và Django Ninja.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Hiện đại (Modern 2026)</strong></span>
+                        <span class="meta-badge">Xu hướng: <strong>Django Ninja, Async Views, Typing</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>14 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Type Hints -->
+                <section class="content-section" id="sec-type-hints">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Type Hints (typing) & Tự Động Hóa API</h2>
+                    </div>
+                    <p class="section-lead">
+                        Python là ngôn ngữ kiểu động (dynamically typed), nhưng việc khai báo Type Hints giúp IDE (VS
+                        Code, PyCharm) auto-complete chính xác và là cốt lõi để các thư viện như <strong>Django Ninja /
+                            Pydantic</strong> tự động validate dữ liệu gửi lên từ Frontend.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">def func(param: type) -> return_type:</span>
+                                <span class="dict-badge badge-core">Type Annotations</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> typing_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> typing <span class="kw">import</span> Optional, List, Dict
+
+<span class="comment"># Định nghĩa hàm có Type Hints rõ ràng</span>
+<span class="kw">def</span> <span class="fn">calculate_cart_total</span>(
+    items: List[Dict[<span class="builtin">str</span>, <span class="builtin">float</span>]], 
+    discount_code: Optional[<span class="builtin">str</span>] = <span class="kw">None</span>
+) -&gt; <span class="builtin">float</span>:
+    total = <span class="builtin">sum</span>(item[<span class="str">"price"</span>] * item.get(<span class="str">"qty"</span>, <span class="num">1.0</span>) <span class="kw">for</span> item <span class="kw">in</span> items)
+    <span class="kw">if</span> discount_code == <span class="str">"GIAMGIA20"</span>:
+        total *= <span class="num">0.8</span>
+    <span class="kw">return</span> <span class="builtin">round</span>(total, <span class="num">2</span>)
+
+cart = [
+    {<span class="str">"price"</span>: <span class="num">150.0</span>, <span class="str">"qty"</span>: <span class="num">2</span>},
+    {<span class="str">"price"</span>: <span class="num">49.99</span>, <span class="str">"qty"</span>: <span class="num">1</span>}
+]
+
+total_bill = calculate_cart_total(cart, discount_code=<span class="str">"GIAMGIA20"</span>)
+<span class="builtin">print</span>(<span class="str">f"Tổng tiền thanh toán sau giảm giá: {total_bill} $"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python typing_demo.py
+Tổng tiền thanh toán sau giảm giá: 279.99 $</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trong Django Ninja & DRF:</h4>
+                                <p>Trong <strong>Django Ninja</strong> (chuẩn API mới nhất tương thích Django), bạn viết
+                                    code như sau:
+                                <pre
+                                    style="background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; margin-top: 0.4rem; color: #a7f3d0;"><span class="dec">@api.get</span>(<span class="str">"/add"</span>)
+<span class="kw">def</span> <span class="fn">add</span>(request, a: <span class="builtin">int</span>, b: <span class="builtin">int</span>):
+    <span class="kw">return</span> {<span class="str">"result"</span>: a + b}</pre>
+                                Django Ninja sẽ đọc Type Hint <code>int</code> để tự động chuyển chuỗi URL thành số
+                                nguyên và tự sinh trang tài liệu tương tác Swagger UI <code>/api/docs</code> hoàn toàn
+                                tự động!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Dataclasses -->
+                <section class="content-section" id="sec-dataclasses">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Dataclasses (@dataclass): Mô Hình Hóa Dữ Liệu Gọn Nhẹ</h2>
+                    </div>
+                    <p class="section-lead">
+                        Không phải dữ liệu nào trong dự án Web cũng cần tạo bảng trong database với
+                        <code>models.Model</code> (ví dụ: payload gửi sang cổng thanh toán, response từ OpenWeather
+                        API). <code>@dataclass</code> giúp bạn tạo Class chứa dữ liệu mà không cần viết hàm
+                        <code>__init__</code> thủ công.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">@dataclass</span>
+                                <span class="dict-badge badge-core">Data Transfer Object (DTO)</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> dataclass_dto.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, asdict
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="cls">PaymentPayloadDTO</span>:
+    order_id: <span class="builtin">str</span>
+    customer_email: <span class="builtin">str</span>
+    amount: <span class="builtin">int</span>
+    currency: <span class="builtin">str</span> = <span class="str">"VND"</span>
+
+<span class="comment"># Tự động có __init__, __repr__, __eq__ mà không cần viết 1 dòng code nào!</span>
+payment = PaymentPayloadDTO(
+    order_id=<span class="str">"VN-98432"</span>, 
+    customer_email=<span class="str">"qtri@example.com"</span>, 
+    amount=<span class="num">250000</span>
+)
+
+<span class="builtin">print</span>(<span class="str">"Đối tượng Dataclass:"</span>, payment)
+<span class="builtin">print</span>(<span class="str">"Chuyển thành Dictionary gửi qua REST API:"</span>)
+<span class="builtin">print</span>(asdict(payment))</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python dataclass_dto.py
+Đối tượng Dataclass: PaymentPayloadDTO(order_id='VN-98432', customer_email='qtri@example.com', amount=250000, currency='VND')
+Chuyển thành Dictionary gửi qua REST API:
+{'order_id': 'VN-98432', 'customer_email': 'qtri@example.com', 'amount': 250000, 'currency': 'VND'}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Async / Await -->
+                <section class="content-section" id="sec-async-await">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Async / Await: Nền Tảng Của Django Asynchronous Views</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi view của bạn cần gọi nhiều API bên ngoài (ví dụ gọi AI Gemini, gửi email, gọi cổng thanh
+                        toán), phương thức đồng bộ (Synchronous) sẽ bắt luồng server phải chờ đợi (blocking).
+                        <code>async def</code> và <code>await</code> giải phóng luồng để server phục vụ các request khác
+                        trong lúc chờ.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">async def & await</span>
+                                <span class="dict-badge badge-django">Django 4/5 Async</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> async_views_concept.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">import</span> asyncio
+<span class="kw">import</span> time
+
+<span class="comment"># Giả lập gọi microservice bên ngoài mất 1 giây</span>
+<span class="kw">async def</span> <span class="fn">fetch_weather_api</span>(city: <span class="builtin">str</span>) -&gt; <span class="builtin">dict</span>:
+    <span class="builtin">print</span>(<span class="str">f"⏳ Bắt đầu gọi API thời tiết cho {city}..."</span>)
+    <span class="kw">await</span> asyncio.sleep(<span class="num">1</span>)  <span class="comment"># Non-blocking I/O chờ mạng</span>
+    <span class="kw">return</span> {<span class="str">"city"</span>: city, <span class="str">"temp"</span>: <span class="num">28</span>}
+
+<span class="comment"># Asynchronous View trong Django</span>
+<span class="kw">async def</span> <span class="fn">home_dashboard_view</span>():
+    start_time = time.time()
+
+    <span class="comment"># Gọi đồng thời 2 API cùng lúc mà không bị chờ cộng dồn!</span>
+    task1 = fetch_weather_api(<span class="str">"Hà Nội"</span>)
+    task2 = fetch_weather_api(<span class="str">"TP. Hồ Chí Minh"</span>)
+    
+    results = <span class="kw">await</span> asyncio.gather(task1, task2)
+    elapsed = time.time() - start_time
+
+    <span class="builtin">print</span>(<span class="str">f"✅ Hoàn thành 2 API chỉ trong: {elapsed:.2f} giây!"</span>)
+    <span class="builtin">print</span>(<span class="str">"Kết quả thời tiết:"</span>, results)
+
+<span class="comment"># Chạy event loop:</span>
+asyncio.run(home_dashboard_view())</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python async_views_concept.py
+⏳ Bắt đầu gọi API thời tiết cho Hà Nội...
+⏳ Bắt đầu gọi API thời tiết cho TP. Hồ Chí Minh...
+✅ Hoàn thành 2 API chỉ trong: 1.00 giây!
+Kết quả thời tiết: [{'city': 'Hà Nội', 'temp': 28}, {'city': 'TP. Hồ Chí Minh', 'temp': 28}]</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trong Django 5.x:</h4>
+                                <p>Django hiện tại hỗ trợ đầy đủ <code>async def my_view(request):</code> và Async ORM
+                                    như <code>await Post.objects.afirst()</code> hoặc
+                                    <code>async for post in Post.objects.all():</code>. Nhờ đó, hiệu năng I/O bound của
+                                    Django có thể tăng gấp 3-5 lần khi xử lý đồng thời nhiều kết nối websocket hoặc
+                                    microservices.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Roadmap Checklist -->
+                <section class="content-section" id="sec-roadmap-checklist">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Checklist 7 Bước: Bạn Đã Sẵn Sàng 100% Cho Django!</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi đã đọc và nắm vững 10 chương của cuốn từ điển này, bạn đã sở hữu trọn vẹn nền tảng Python
+                        cốt lõi nhất. Hãy tự tin bắt đầu dự án Django đầu tiên theo các bước sau:
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">🚀 Lệnh Khởi Động Dự Án Django Thực Tế</span>
+                                <span class="dict-badge badge-django">Your Next Steps</span>
+                            </div>
+                        </div>
+                        <div class="pane-body code-body" style="background: #090e18; padding: 1.5rem;">
+                            <pre><span class="comment"># 1. Tạo thư mục dự án và venv cô lập (Chương 01)</span>
+mkdir my_first_django && cd my_first_django
+python3 -m venv venv
+source venv/bin/activate
+
+<span class="comment"># 2. Cài đặt Django và lưu requirements (Chương 01)</span>
+pip install django
+pip freeze > requirements.txt
+
+<span class="comment"># 3. Tạo cấu trúc Project và App (Chương 01 & 07)</span>
+django-admin startproject config .
+python manage.py startapp blog
+
+<span class="comment"># 4. Tạo Model kế thừa models.Model, có __str__ và override save() (Chương 05 & 06)</span>
+<span class="comment"># (Mở blog/models.py để thiết kế bảng dữ liệu)</span>
+
+<span class="comment"># 5. Sinh migration và chạy migration vào SQLite (Chương 05)</span>
+python manage.py makemigrations
+python manage.py migrate
+
+<span class="comment"># 6. Tạo tài khoản Admin (Chương 06)</span>
+python manage.py createsuperuser
+
+<span class="comment"># 7. Khởi động server phát triển và chiêm ngưỡng thành quả!</span>
+python manage.py runserver</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-09-context-managers-generators.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 09: Context Managers & Generators</span>
+                        </div>
+                    </a>
+                    <a href="../index.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Hoàn thành</span>
+                            <span>Về Trang Mục Lục Tổng Quan &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 05: OOP Nền Tảng Cho Django Models & CBV | Từ Điển Python</title>
+    <meta name="description"
+        content="Nắm vững class, self, tính kế thừa, hàm super() ghi đè save() và phân biệt Class vs Instance attribute trong Django.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 05</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link active">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-classes-self" class="sidebar-sublink">&bull; Class, Instance & self</a>
+                <a href="#sec-inheritance" class="sidebar-sublink">&bull; Kế thừa trong Django</a>
+                <a href="#sec-super" class="sidebar-sublink">&bull; super() và Ghi đè save()</a>
+                <a href="#sec-class-attributes" class="sidebar-sublink">&bull; Class vs Instance Attributes</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 05: OOP Nền Tảng Cho Django Models & CBV</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 05 &bull; OBJECT-ORIENTED PROGRAMMING</div>
+                    <h1 class="chapter-title">Lập Trình Hướng Đối Tượng: Nền Tảng Của Django ORM</h1>
+                    <p class="chapter-desc">
+                        Django được mệnh danh là framework tôn sùng OOP. Toàn bộ bảng cơ sở dữ liệu (ORM Models), biểu
+                        mẫu nhập liệu (Forms), và màn hình hiển thị (Class-Based Views) đều là các lớp Python kế thừa
+                        lẫn nhau.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Xương sống (Backbone)</strong></span>
+                        <span class="meta-badge">Ứng dụng: <strong>Models & Class-Based Views</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>15 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Class & self -->
+                <section class="content-section" id="sec-classes-self">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Class, Instance & Bản Chất Của Từ Khóa self</h2>
+                    </div>
+                    <p class="section-lead">
+                        Class là bản thiết kế (blueprint), còn Instance là đối tượng thực tế sinh ra từ bản thiết kế đó.
+                        Từ khóa <code>self</code> đại diện cho chính thực thể (instance) cụ thể đang gọi hàm.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">class MyModel; def method(self)</span>
+                                <span class="dict-badge badge-core">OOP Syntax</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Khi bạn gọi <code>obj.method()</code>, thực chất Python sẽ biên dịch ngầm thành
+                            <code>MyClass.method(obj)</code>. Vì vậy tham số đầu tiên của mọi method luôn là
+                            <code>self</code>.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> oop_basics.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">UserProfile</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, username, email):
+        <span class="comment"># Gán dữ liệu vào chính instance này thông qua self</span>
+        self.username = username
+        self.email = email
+        self.is_active = <span class="kw">True</span>
+
+    <span class="kw">def</span> <span class="fn">deactivate</span>(self):
+        self.is_active = <span class="kw">False</span>
+        <span class="builtin">print</span>(<span class="str">f"Tài khoản '{self.username}' đã bị khóa!"</span>)
+
+<span class="comment"># Khởi tạo 2 đối tượng độc lập:</span>
+user1 = UserProfile(<span class="str">"alice"</span>, <span class="str">"alice@example.com"</span>)
+user2 = UserProfile(<span class="str">"bob"</span>, <span class="str">"bob@example.com"</span>)
+
+user1.deactivate()
+
+<span class="builtin">print</span>(<span class="str">"Trạng thái user1 (Alice):"</span>, user1.is_active)
+<span class="builtin">print</span>(<span class="str">"Trạng thái user2 (Bob):"</span>, user2.is_active)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python oop_basics.py
+Tài khoản 'alice' đã bị khóa!
+Trạng thái user1 (Alice): False
+Trạng thái user2 (Bob): True</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Mỗi hàng trong bảng CSDL (Database Record) khi được truy vấn bằng
+                                    <code>post = Post.objects.get(id=1)</code> sẽ được Django đóng gói thành một
+                                    <strong>instance</strong> của class <code>Post</code>. Bạn có thể truy cập các cột
+                                    của bảng đó thông qua <code>post.title</code>, <code>post.created_at</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Inheritance -->
+                <section class="content-section" id="sec-inheritance">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Tính Kế Thừa (Inheritance) Trong Django Framework</h2>
+                    </div>
+                    <p class="section-lead">
+                        Django cung cấp sẵn các lớp cơ sở mạnh mẽ như <code>models.Model</code>,
+                        <code>forms.ModelForm</code>, <code>views.generic.ListView</code>. Bạn chỉ cần kế thừa lại và
+                        chỉ định cấu hình riêng của mình.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">class ChildClass(ParentClass)</span>
+                                <span class="dict-badge badge-django">Django Models & Forms</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> model_inheritance_concept.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Giả lập class cơ sở Model của Django</span>
+<span class="kw">class</span> <span class="cls">BaseDjangoModel</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, **kwargs):
+        <span class="kw">for</span> key, value <span class="kw">in</span> kwargs.items():
+            <span class="builtin">setattr</span>(self, key, value)
+
+    <span class="kw">def</span> <span class="fn">save</span>(self):
+        <span class="builtin">print</span>(<span class="str">f"💾 [SQL INSERT/UPDATE] Lưu bản ghi vào bảng '{self.__class__.__name__.lower()}'"</span>)
+
+<span class="comment"># Lập trình viên định nghĩa Model bằng kế thừa:</span>
+<span class="kw">class</span> <span class="cls">Product</span>(BaseDjangoModel):
+    <span class="kw">def</span> <span class="fn">calculate_tax</span>(self):
+        <span class="kw">return</span> self.price * <span class="num">0.1</span>
+
+prod = Product(name=<span class="str">"Bàn phím cơ"</span>, price=<span class="num">1500000</span>)
+<span class="builtin">print</span>(<span class="str">"Sản phẩm:"</span>, prod.name)
+<span class="builtin">print</span>(<span class="str">"Thuế VAT 10%:"</span>, prod.calculate_tax(), <span class="str">"VNĐ"</span>)
+prod.save() <span class="comment"># Gọi hàm kế thừa từ BaseDjangoModel</span></pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python model_inheritance_concept.py
+Sản phẩm: Bàn phím cơ
+Thuế VAT 10%: 150000.0 VNĐ
+💾 [SQL INSERT/UPDATE] Lưu bản ghi vào bảng 'product'</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: super() and override save -->
+                <section class="content-section" id="sec-super">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Ghi Đè Phương Thức (Override) & Hàm super()</h2>
+                    </div>
+                    <p class="section-lead">
+                        Khi phương thức của lớp cha chưa đáp ứng đủ yêu cầu, lớp con có quyền viết lại hàm cùng tên và
+                        dùng <code>super().method()</code> để tận dụng logic của lớp cha mà không làm hỏng tính năng
+                        gốc.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">super().save(*args, **kwargs)</span>
+                                <span class="dict-badge badge-django">Must-Know Technique</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Kỹ thuật ghi đè hàm <code>save()</code> được sử dụng phổ biến nhất trong Django để tự động
+                            tính toán dữ liệu (như tạo slug, mã hóa thẻ, hash password) ngay trước khi dữ liệu được ghi
+                            xuống Database.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> override_save_slug.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">BaseModel</span>:
+    <span class="kw">def</span> <span class="fn">save</span>(self, *args, **kwargs):
+        <span class="builtin">print</span>(<span class="str">"-> [Database Engine] Đã ghi dữ liệu thành công!"</span>)
+
+<span class="kw">class</span> <span class="cls">Article</span>(BaseModel):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, title):
+        self.title = title
+        self.slug = <span class="str">""</span>
+
+    <span class="kw">def</span> <span class="fn">save</span>(self, *args, **kwargs):
+        <span class="comment"># Bước 1: Can thiệp dữ liệu trước khi lưu</span>
+        <span class="kw">if not</span> self.slug:
+            self.slug = self.title.lower().replace(<span class="str">" "</span>, <span class="str">"-"</span>)
+            <span class="builtin">print</span>(<span class="str">f"-> [Pre-Save Hook] Tạo slug: '{self.slug}'"</span>)
+
+        <span class="comment"># Bước 2: BẮT BUỘC gọi super().save()</span>
+        <span class="builtin">super</span>().save(*args, **kwargs)
+
+art = Article(<span class="str">"Huong Dan Hoc Django 2026"</span>)
+art.save()
+<span class="builtin">print</span>(<span class="str">"Slug kết quả:"</span>, art.slug)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python override_save_slug.py
+-> [Pre-Save Hook] Tạo slug: 'huong-dan-hoc-django-2026'
+-> [Database Engine] Đã ghi dữ liệu thành công!
+Slug kết quả: huong-dan-hoc-django-2026</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pitfall-box">
+                            <div class="pitfall-icon">⚠️</div>
+                            <div class="pitfall-content">
+                                <h4>Quên gọi super().save():</h4>
+                                <p>Nếu bạn ghi đè hàm <code>save()</code> mà quên dòng lệnh
+                                    <code>super().save(*args, **kwargs)</code>, dữ liệu của bạn sẽ chỉ thay đổi trong bộ
+                                    nhớ RAM và <strong>HOÀN TOÀN KHÔNG ĐƯỢC LƯU VÀO DATABASE!</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Class vs Instance Attributes -->
+                <section class="content-section" id="sec-class-attributes">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Phân Biệt Class Attribute vs Instance Attribute</h2>
+                    </div>
+                    <p class="section-lead">
+                        Tại sao trong Django Model bạn lại viết <code>title = models.CharField(...)</code> ở ngoài thân
+                        class chứ không viết trong <code>def __init__</code>?
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">Class Attributes vs Instance Attributes</span>
+                                <span class="dict-badge badge-core">Mental Model</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> class_vs_instance_attr.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">class</span> <span class="cls">DjangoModelDemo</span>:
+    <span class="comment"># 1. CLASS ATTRIBUTE: Chia sẻ cho toàn bộ class</span>
+    <span class="comment"># Trong Django, đây chính là cách định nghĩa các cột Database (ORM Fields)!</span>
+    table_name = <span class="str">"tbl_articles"</span>
+    default_status = <span class="str">"draft"</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, title):
+        <span class="comment"># 2. INSTANCE ATTRIBUTE: Dữ liệu riêng biệt của từng bản ghi</span>
+        self.title = title
+
+<span class="comment"># Truy cập trực tiếp qua tên Class mà không cần tạo đối tượng:</span>
+<span class="builtin">print</span>(<span class="str">"Tên bảng CSDL khai báo ở Class:"</span>, DjangoModelDemo.table_name)
+
+item1 = DjangoModelDemo(<span class="str">"Bài viết 1"</span>)
+item2 = DjangoModelDemo(<span class="str">"Bài viết 2"</span>)
+
+<span class="builtin">print</span>(<span class="str">"Title bản ghi 1:"</span>, item1.title)
+<span class="builtin">print</span>(<span class="str">"Title bản ghi 2:"</span>, item2.title)
+<span class="builtin">print</span>(<span class="str">"Cả 2 đều chia sẻ status:"</span>, item1.default_status, <span class="str">"|"</span>, item2.default_status)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python class_vs_instance_attr.py
+Tên bảng CSDL khai báo ở Class: tbl_articles
+Title bản ghi 1: Bài viết 1
+Title bản ghi 2: Bài viết 2
+Cả 2 đều chia sẻ status: draft | draft</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Bản chất của Django ORM:</h4>
+                                <p>Django sử dụng một kỹ thuật Python nâng cao gọi là <strong>Metaclass</strong> để quét
+                                    toàn bộ <em>Class Attributes</em> (ví dụ:
+                                    <code>title = models.CharField(...)</code>,
+                                    <code>price = models.DecimalField(...)</code>) và tự động sinh ra mã SQL
+                                    <code>CREATE TABLE ...</code> tương ứng trong lệnh
+                                    <code>python manage.py makemigrations</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-04-decorators.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 04: Decorators Chuyên Sâu</span>
+                        </div>
+                    </a>
+                    <a href="chapter-06-oop-advanced-mixins.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 06: OOP Nâng Cao & Mixins &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

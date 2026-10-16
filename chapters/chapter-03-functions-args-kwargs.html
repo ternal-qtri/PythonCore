@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 03: Hàm Nâng Cao & *args, **kwargs | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Làm chủ *args, **kwargs, first-class functions, closures và nguyên lý Function-Based Views trong Django.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 03</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link active">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-args-kwargs" class="sidebar-sublink">&bull; Cơ chế *args & **kwargs</a>
+                <a href="#sec-forwarding" class="sidebar-sublink">&bull; Chuyển tiếp tham số (Forwarding)</a>
+                <a href="#sec-closures" class="sidebar-sublink">&bull; First-Class Functions & Closures</a>
+                <a href="#sec-fbv" class="sidebar-sublink">&bull; Triết lý Function-Based Views (FBV)</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 03: Hàm Nâng Cao & *args, **kwargs</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 03 &bull; FUNCTION MASTERY</div>
+                    <h1 class="chapter-title">Hàm Nâng Cao & Nguyên Lý *args, **kwargs</h1>
+                    <p class="chapter-desc">
+                        Không có kỹ thuật nào xuất hiện nhiều trong tài liệu Django bằng <code>*args</code> và
+                        <code>**kwargs</code>. Từ các hàm xử lý View, Middleware, Model methods đến Decorator, nếu không
+                        hiểu bản chất packing/unpacking, bạn sẽ liên tục gặp lỗi
+                        <code>TypeError: got unexpected keyword argument</code>.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Tối quan trọng (Vital)</strong></span>
+                        <span class="meta-badge">Kỹ thuật: <strong>Packing & Unpacking</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>14 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: args kwargs -->
+                <section class="content-section" id="sec-args-kwargs">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Cơ Chế Thu Thập Tham Số: *args & **kwargs</h2>
+                    </div>
+                    <p class="section-lead">
+                        Dấu sao <code>*</code> thu thập các đối số vị trí (positional arguments) thành một
+                        <strong>tuple</strong>. Dấu hai sao <code>**</code> thu thập các đối số có đặt tên (keyword
+                        arguments) thành một <strong>dictionary</strong>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">def func(*args, **kwargs)</span>
+                                <span class="dict-badge badge-core">Core Syntax</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Hàm có thể nhận bất kỳ số lượng tham số nào mà người gọi truyền vào mà không bị giới hạn số
+                            lượng.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> args_kwargs_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">def</span> <span class="fn">inspect_arguments</span>(*args, **kwargs):
+    <span class="builtin">print</span>(<span class="str">"Kiểu của args:"</span>, <span class="builtin">type</span>(args), <span class="str">"| Giá trị:"</span>, args)
+    <span class="builtin">print</span>(<span class="str">"Kiểu của kwargs:"</span>, <span class="builtin">type</span>(kwargs), <span class="str">"| Giá trị:"</span>, kwargs)
+    <span class="builtin">print</span>(<span class="str">"-"</span> * <span class="num">40</span>)
+
+<span class="comment"># Gọi hàm với các kiểu dữ liệu khác nhau:</span>
+inspect_arguments(<span class="num">1</span>, <span class="str">"django"</span>, <span class="kw">True</span>)
+inspect_arguments(status=<span class="str">"active"</span>, max_items=<span class="num">50</span>)
+inspect_arguments(<span class="num">99</span>, user=<span class="str">"admin"</span>, role=<span class="str">"superuser"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python args_kwargs_demo.py
+Kiểu của args: &lt;class 'tuple'&gt; | Giá trị: (1, 'django', True)
+Kiểu của kwargs: &lt;class 'dict'&gt; | Giá trị: {}
+----------------------------------------
+Kiểu của args: &lt;class 'tuple'&gt; | Giá trị: ()
+Kiểu của kwargs: &lt;class 'dict'&gt; | Giá trị: {'status': 'active', 'max_items': 50}
+----------------------------------------
+Kiểu của args: &lt;class 'tuple'&gt; | Giá trị: (99,)
+Kiểu của kwargs: &lt;class 'dict'&gt; | Giá trị: {'user': 'admin', 'role': 'superuser'}
+----------------------------------------</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong <code>urls.py</code>, bạn định nghĩa các tham số URL linh hoạt:
+                                    <code>path('post/&lt;int:post_id&gt;/edit/', views.edit_post)</code>. Khi Django gọi
+                                    view của bạn, nó sẽ truyền tham số đó vào thông qua <code>**kwargs</code>:
+                                    <code>kwargs={'post_id': 15}</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Forwarding Arguments -->
+                <section class="content-section" id="sec-forwarding">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Chuyển Tiếp Tham Số Khi Ghi Đè (Forwarding Pattern)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Đây là lý do sống còn mà khi bạn ghi đè hàm <code>save()</code> của Model hay hàm
+                        <code>get_context_data()</code> của View, bạn luôn bắt buộc phải viết
+                        <code>*args, **kwargs</code>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">super().method(*args, **kwargs)</span>
+                                <span class="dict-badge badge-django">Django Core Pattern</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Bắt giữ toàn bộ tham số người dùng truyền tới, can thiệp xử lý logic của mình, rồi "chuyển
+                            tiếp nguyên vẹn" sang cho hàm lớp cha xử lý tiếp.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> forwarding_pattern.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Giả lập lớp cha Django BaseModel</span>
+<span class="kw">class</span> <span class="cls">DjangoModel</span>:
+    <span class="kw">def</span> <span class="fn">save</span>(self, force_insert=<span class="kw">False</span>, using=<span class="kw">None</span>):
+        <span class="builtin">print</span>(<span class="str">f"-> [LỚP CHA] Lưu CSDL: force_insert={force_insert}, db={using}"</span>)
+
+<span class="comment"># Lớp con ghi đè của lập trình viên</span>
+<span class="kw">class</span> <span class="cls">BlogPost</span>(DjangoModel):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, title):
+        self.title = title
+        self.slug = <span class="str">""</span>
+
+    <span class="kw">def</span> <span class="fn">save</span>(self, *args, **kwargs):
+        <span class="comment"># 1. Tự động sinh slug trước khi lưu</span>
+        self.slug = self.title.lower().replace(<span class="str">" "</span>, <span class="str">"-"</span>)
+        <span class="builtin">print</span>(<span class="str">f"-> [LỚP CON] Đã tự tạo slug: '{self.slug}'"</span>)
+
+        <span class="comment"># 2. Chuyển tiếp nguyên vẹn *args, **kwargs cho lớp cha!</span>
+        <span class="builtin">super</span>().save(*args, **kwargs)
+
+post = BlogPost(<span class="str">"Hoc Django Khong Kho"</span>)
+post.save(force_insert=<span class="kw">True</span>, using=<span class="str">"read_replica"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python forwarding_pattern.py
+-> [LỚP CON] Đã tự tạo slug: 'hoc-django-khong-kho'
+-> [LỚP CHA] Lưu CSDL: force_insert=True, db=read_replica</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pitfall-box">
+                            <div class="pitfall-icon">⚠️</div>
+                            <div class="pitfall-content">
+                                <h4>Cạm bẫy tai hại:</h4>
+                                <p>Nếu bạn định nghĩa <code>def save(self): super().save()</code> mà không có
+                                    <code>*args, **kwargs</code>, khi Django gọi
+                                    <code>post.save(update_fields=['slug'])</code> nội bộ, code của bạn sẽ lập tức quăng
+                                    lỗi
+                                    <code>TypeError: save() got an unexpected keyword argument 'update_fields'</code>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Closures -->
+                <section class="content-section" id="sec-closures">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. First-Class Functions & Closures (Hàm Làm Tham Số)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Trong Python, hàm được đối xử như một giá trị bình thường: có thể gán cho biến, truyền vào làm
+                        tham số, hoặc một hàm có thể trả về một hàm khác.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">Closures & Higher-Order Functions</span>
+                                <span class="dict-badge badge-core">Foundational Concept</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> closure_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">def</span> <span class="fn">permission_checker</span>(allowed_role):
+    <span class="comment"># Hàm bên ngoài trả về hàm bên trong (Closure ghi nhớ allowed_role)</span>
+    <span class="kw">def</span> <span class="fn">check_user</span>(user_dict):
+        <span class="kw">return</span> user_dict.get(<span class="str">"role"</span>) == allowed_role
+    <span class="kw">return</span> check_user
+
+<span class="comment"># Tạo ra các hàm kiểm tra chuyên biệt:</span>
+is_admin = permission_checker(<span class="str">"admin"</span>)
+is_editor = permission_checker(<span class="str">"editor"</span>)
+
+user_a = {<span class="str">"name"</span>: <span class="str">"Alice"</span>, <span class="str">"role"</span>: <span class="str">"editor"</span>}
+user_b = {<span class="str">"name"</span>: <span class="str">"Bob"</span>, <span class="str">"role"</span>: <span class="str">"admin"</span>}
+
+<span class="builtin">print</span>(<span class="str">"Alice có phải admin?"</span>, is_admin(user_a))
+<span class="builtin">print</span>(<span class="str">"Bob có phải admin?"</span>, is_admin(user_b))
+<span class="builtin">print</span>(<span class="str">"Alice có phải editor?"</span>, is_editor(user_a))</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python closure_demo.py
+Alice có phải admin? False
+Bob có phải admin? True
+Alice có phải editor? True</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Khái niệm Closure này chính là bản chất 100% của <strong>Decorators</strong> (sẽ học
+                                    chi tiết ở Chương 4) và các hàm lắng nghe sự kiện <strong>Django Signals</strong>
+                                    như <code>post_save.connect(my_receiver_function)</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: FBV -->
+                <section class="content-section" id="sec-fbv">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Triết Lý Function-Based Views (FBV) Trong Django</h2>
+                    </div>
+                    <p class="section-lead">
+                        Bản chất của một website là chu trình <strong>Request &rarr; Response</strong>. Trong Django,
+                        một View cơ bản nhất là một hàm Python thỏa mãn 2 quy tắc vàng.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">def my_view(request, *args, **kwargs) -> HttpResponse</span>
+                                <span class="dict-badge badge-django">Django View Pattern</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> fbv_anatomy.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Giả lập đối tượng HttpRequest và HttpResponse trong Django</span>
+<span class="kw">class</span> <span class="cls">HttpRequest</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, method=<span class="str">"GET"</span>, user=<span class="str">"Guest"</span>):
+        self.method = method
+        self.user = user
+
+<span class="kw">class</span> <span class="cls">HttpResponse</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, content, status_code=<span class="num">200</span>):
+        self.content = content
+        self.status_code = status_code
+
+<span class="comment"># Cấu trúc 1 Function-Based View thực thụ trong Django views.py</span>
+<span class="kw">def</span> <span class="fn">article_detail_view</span>(request, article_id):
+    <span class="kw">if</span> request.method != <span class="str">"GET"</span>:
+        <span class="kw">return</span> HttpResponse(<span class="str">"Chỉ chấp nhận phương thức GET"</span>, status_code=<span class="num">405</span>)
+    
+    <span class="comment"># Xử lý logic và trả về response</span>
+    data = <span class="str">f"Bài viết #{article_id} - Người xem: {request.user}"</span>
+    <span class="kw">return</span> HttpResponse(data, status_code=<span class="num">200</span>)
+
+<span class="comment"># Mô phỏng Django Router gọi View:</span>
+req = HttpRequest(method=<span class="str">"GET"</span>, user=<span class="str">"qtri"</span>)
+res = article_detail_view(req, article_id=<span class="num">88</span>)
+<span class="builtin">print</span>(<span class="str">f"Status: {res.status_code} | Nội dung: {res.content}"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python fbv_anatomy.py
+Status: 200 | Nội dung: Bài viết #88 - Người xem: qtri</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Quy tắc vàng của Django View:</h4>
+                                <p>1. Tham số đầu tiên luôn luôn là <code>request</code> (thể hiện đối tượng
+                                    <code>HttpRequest</code> mang theo thông tin header, session, cookies, user).<br>
+                                    2. Giá trị trả về ở lệnh <code>return</code> bắt buộc phải là một instance của
+                                    <code>HttpResponse</code> (hoặc các hàm render, redirect, JsonResponse kế thừa từ
+                                    nó).</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-02-data-structures.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 02: Cấu Trúc Dữ Liệu</span>
+                        </div>
+                    </a>
+                    <a href="chapter-04-decorators.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 04: Decorators Chuyên Sâu &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

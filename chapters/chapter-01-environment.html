@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 01: Môi Trường & Quản Lý Gói | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Hướng dẫn chi tiết về venv, pip, requirements.txt, sys.path và cấu trúc thư mục dự án Django chuẩn.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 01</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link active">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-venv" class="sidebar-sublink">&bull; Môi trường ảo (venv)</a>
+                <a href="#sec-pip" class="sidebar-sublink">&bull; pip & requirements.txt</a>
+                <a href="#sec-syspath" class="sidebar-sublink">&bull; sys.path & PYTHONPATH</a>
+                <a href="#sec-structure" class="sidebar-sublink">&bull; Cấu trúc thư mục Django chuẩn</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 01: Môi trường & Quản lý gói</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 01 &bull; NỀN TẢNG HẠ TẦNG</div>
+                    <h1 class="chapter-title">Môi Trường Ảo, Quản Lý Gói & Cấu Trúc Dự Án</h1>
+                    <p class="chapter-desc">
+                        Trước khi viết dòng code Django đầu tiên, lập trình viên bắt buộc phải nắm vững kỹ năng cô lập
+                        môi trường phụ thuộc (dependencies). Không bao giờ cài đặt Django trực tiếp vào Python của hệ
+                        điều hành.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Bắt buộc (Foundation)</strong></span>
+                        <span class="meta-badge">Thực thi: <strong>CLI & Module</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>12 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: venv -->
+                <section class="content-section" id="sec-venv">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Môi Trường Ảo (Virtual Environment - venv)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Môi trường ảo tạo ra một thư mục độc lập chứa phiên bản Python riêng và bộ thư viện tách biệt
+                        hoàn toàn với hệ thống và các dự án khác trên cùng máy tính.
+                    </p>
+
+                    <!-- Dictionary Card 1 -->
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">python -m venv &lt;env_name&gt;</span>
+                                <span class="dict-badge badge-core">Core Command</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Cú pháp khởi tạo và kích hoạt môi trường ảo trên Linux/macOS và Windows.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> Terminal Commands (Bash /
+                                        PowerShell)</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># 1. Khởi tạo môi trường ảo tên 'venv'</span>
+python3 -m venv venv
+
+<span class="comment"># 2. Kích hoạt môi trường trên Linux / macOS:</span>
+source venv/bin/activate
+
+<span class="comment"># Hoặc kích hoạt trên Windows (PowerShell):</span>
+<span class="comment"># .\venv\Scripts\Activate.ps1</span>
+
+<span class="comment"># 3. Kiểm tra đường dẫn python đang chạy</span>
+which python
+
+<span class="comment"># 4. Khi muốn thoát môi trường ảo:</span>
+deactivate</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">active console</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python3 -m venv venv
+<span class="prompt-sign">$</span> source venv/bin/activate
+<span style="color: #6ee7b7;">(venv)</span> <span class="prompt-sign">$</span> which python
+/home/user/my_django_project/venv/bin/python
+
+<span style="color: #6ee7b7;">(venv)</span> <span class="prompt-sign">$</span> deactivate
+<span class="prompt-sign">$</span> which python
+/usr/bin/python3</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Mỗi dự án Django thường sử dụng phiên bản Django khác nhau (ví dụ: Dự án cũ dùng
+                                    Django 3.2 LTS, dự án mới dùng Django 5.1). Nếu không có <code>venv</code>, việc cài
+                                    đặt sẽ đè lên nhau và gây lỗi crash toàn bộ hệ thống.</p>
+                            </div>
+                        </div>
+
+                        <div class="pitfall-box">
+                            <div class="pitfall-icon">⚠️</div>
+                            <div class="pitfall-content">
+                                <h4>Cạm bẫy cần tránh:</h4>
+                                <p>Tuyệt đối <strong>KHÔNG</strong> commit thư mục <code>venv/</code> lên Git. Luôn thêm
+                                    <code>venv/</code> và <code>.env</code> vào tệp <code>.gitignore</code>!</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: pip & requirements -->
+                <section class="content-section" id="sec-pip">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Quản Lý Gói: pip & requirements.txt</h2>
+                    </div>
+                    <p class="section-lead">
+                        Cách đóng gói toàn bộ danh sách thư viện và cài đặt hàng loạt trên server production.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">pip install, freeze & requirements.txt</span>
+                                <span class="dict-badge badge-django">Django Workflow</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Cài đặt Django, xuất tệp cấu hình phụ thuộc và tái thiết lập môi trường bằng 1 dòng lệnh.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> Terminal Commands</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Cài đặt Django và các package liên quan</span>
+pip install django psycopg2-binary pillow
+
+<span class="comment"># Xuất danh sách thư viện đã cài ra file</span>
+pip freeze > requirements.txt
+
+<span class="comment"># Xem nội dung file requirements.txt vừa tạo</span>
+cat requirements.txt
+
+<span class="comment"># Trên Server / Thành viên khác trong team clone về chỉ cần:</span>
+pip install -r requirements.txt</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">(venv) $</span> pip freeze > requirements.txt
+<span class="prompt-sign">(venv) $</span> cat requirements.txt
+asgiref==3.8.1
+Django==5.1.2
+Pillow==10.4.0
+psycopg2-binary==2.9.9
+sqlparse==0.5.1
+
+<span class="prompt-sign">(venv) $</span> pip install -r requirements.txt
+Requirement already satisfied: asgiref==3.8.1 ...
+Requirement already satisfied: Django==5.1.2 ...</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Tệp <code>requirements.txt</code> là tài liệu bắt buộc khi deploy Django lên Docker,
+                                    AWS, Render, Heroku hay VPS. Nó đảm bảo server chạy chính xác 100% các phiên bản thư
+                                    viện đã phát triển ở môi trường local.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: sys.path -->
+                <section class="content-section" id="sec-syspath">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. sys.path & Cơ Chế Tìm Kiếm Module của Python</h2>
+                    </div>
+                    <p class="section-lead">
+                        Hiểu rõ <code>sys.path</code> là chìa khóa để trả lời câu hỏi: "Tại sao Django import được các
+                        app mà không báo lỗi <code>ModuleNotFoundError</code>?"
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">import sys; sys.path</span>
+                                <span class="dict-badge badge-core">Core Python</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            <code>sys.path</code> là một danh sách (list) các chuỗi đường dẫn thư mục mà Python sẽ lần
+                            lượt duyệt qua khi bạn gõ lệnh <code>import ...</code>.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> inspect_path.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">import</span> sys
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="builtin">print</span>(<span class="str">"Tổng số đường dẫn tìm kiếm:"</span>, <span class="builtin">len</span>(sys.path))
+<span class="builtin">print</span>(<span class="str">"Thư mục hiện tại (luôn ở vị trí đầu tiên index 0):"</span>)
+<span class="builtin">print</span>(<span class="str">" ->"</span>, sys.path[0])
+
+<span class="comment"># Mô phỏng cách manage.py của Django thêm root vào sys.path</span>
+CURRENT_DIR = Path(__file__).resolve().parent
+<span class="kw">if</span> <span class="builtin">str</span>(CURRENT_DIR) <span class="kw">not in</span> sys.path:
+    sys.path.insert(0, <span class="builtin">str</span>(CURRENT_DIR))
+
+<span class="builtin">print</span>(<span class="str">"Đã nạp đường dẫn gốc thành công!"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python inspect_path.py
+Tổng số đường dẫn tìm kiếm: 6
+Thư mục hiện tại (luôn ở vị trí đầu tiên index 0):
+ -> /home/user/my_django_project
+Đã nạp đường dẫn gốc thành công!</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Khi bạn chạy lệnh <code>python manage.py runserver</code>, file
+                                    <code>manage.py</code> tự động biến thư mục gốc dự án thành điểm xuất phát của
+                                    <code>sys.path</code>. Nhờ đó, ở bất kỳ file nào bạn cũng có thể gõ
+                                    <code>from blog.models import Post</code> hoặc
+                                    <code>from users.views import LoginView</code> mà không sợ lỗi đường dẫn.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Django Folder Structure -->
+                <section class="content-section" id="sec-structure">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Cấu Trúc Dự Án Django Chuẩn</h2>
+                    </div>
+                    <p class="section-lead">
+                        Cách tổ chức thư mục khi kết hợp Python Virtualenv và Django Project.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">Django Directory Anatomy</span>
+                                <span class="dict-badge badge-django">Architecture</span>
+                            </div>
+                        </div>
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>📂</span> Sơ đồ cây thư mục (File Tree)</span>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre>my_project/                 <span class="comment"># Thư mục gốc dự án</span>
+│
+├── venv/                   <span class="comment"># Môi trường ảo (KHÔNG commit vào git)</span>
+├── .gitignore              <span class="comment"># Khai báo bỏ qua venv, .env, *.pyc</span>
+├── requirements.txt        <span class="comment"># Danh sách package</span>
+├── manage.py               <span class="comment"># CLI entrypoint của Django</span>
+│
+├── core_config/            <span class="comment"># Thư mục cấu hình tổng (Project Settings)</span>
+│   ├── __init__.py         <span class="comment"># Đánh dấu đây là Python Package</span>
+│   ├── settings.py         <span class="comment"># Cấu hình CSDL, INSTALLED_APPS, Middleware</span>
+│   ├── urls.py             <span class="comment"># Định tuyến URL cấp cao nhất</span>
+│   ├── asgi.py             <span class="comment"># Cổng chạy Async server</span>
+│   └── wsgi.py             <span class="comment"># Cổng chạy Sync WSGI server (Gunicorn)</span>
+│
+└── blog_app/               <span class="comment"># Một ứng dụng con (Django App)</span>
+    ├── __init__.py
+    ├── models.py           <span class="comment"># Định nghĩa CSDL (OOP Classes)</span>
+    ├── views.py            <span class="comment"># Xử lý logic và request</span>
+    ├── urls.py             <span class="comment"># Route riêng của app</span>
+    ├── forms.py            <span class="comment"># Xử lý biểu mẫu dữ liệu</span>
+    └── admin.py            <span class="comment"># Đăng ký hiển thị lên Django Admin</span></pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Vai trò cụ thể trong Python Runtime</span>
+                                    </span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span style="color: #6ee7b7;">✔ manage.py:</span>
+  Script dùng để chạy server, migrate database,
+  tạo superuser.
+
+<span style="color: #6ee7b7;">✔ settings.py:</span>
+  Thực chất là 1 module Python chuẩn, biến cấu hình
+  đều là biến Python dạng SCREAMING_SNAKE_CASE.
+
+<span style="color: #6ee7b7;">✔ __init__.py:</span>
+  Báo cho Python trình thông dịch biết thư mục
+  này là một Python Package hợp lệ.</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="../index.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Quay lại</span>
+                            <span>Trang Mục Lục</span>
+                        </div>
+                    </a>
+                    <a href="chapter-02-data-structures.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 02: Cấu Trúc Dữ Liệu &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

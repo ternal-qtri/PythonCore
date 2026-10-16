@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Từ Điển Python Dành Cho Lập Trình Viên Django | Handbook & Roadmap</title>
+    <meta name="description"
+        content="Tổng hợp toàn diện kiến thức Python cốt lõi cần có để bắt đầu học Django, thiết kế theo định dạng từ điển tra cứu có code và kết quả đối chiếu chi tiết.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <div class="brand-logo">Py</div>
+            <div>
+                <span class="brand-title">PythonCore &rarr; Django</span>
+                <span class="brand-subtitle">Từ Điển Tra Cứu</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu cú pháp, hàm, lỗi... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapters/chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Liên kết nhanh</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#quick-guide"
+                    style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 0.4rem;">💡 Cách
+                    đọc từ điển đối chiếu</a>
+                <a href="#django-map" style="font-size: 0.8rem; color: var(--text-dim); display: block;">🗺️ Bản đồ liên
+                    kết Python & Django</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Hero Section -->
+                <section class="hero-index">
+                    <div class="chapter-tag">🚀 Lộ Trình Chuẩn Bị Vững Chắc Cho Django</div>
+                    <h1>
+                        Từ Điển <span class="hero-gradient-text">Python Cốt Lõi</span><br>
+                        Để Làm Chủ Django Framework
+                    </h1>
+                    <p>
+                        Bạn không cần học lan man toàn bộ thư viện ngoài của Python. Cuốn tài liệu này tổng hợp chính
+                        xác những kỹ thuật Python bản chất nhất mà Django liên tục sử dụng ở Models, Views, Forms,
+                        Middleware và ORM.
+                        <strong>Mỗi mục đều có Code và Kết quả đối chiếu song song</strong> giúp bạn đọc là hiểu ngay mà
+                        không cần tốn thời gian chạy thử.
+                    </p>
+                </section>
+
+                <!-- Stats Row -->
+                <div class="hero-stats-row">
+                    <div class="stat-card">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Chương Học Chuyên Sâu</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Khái Niệm Cốt Lõi Tra Cứu</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">85+</div>
+                        <div class="stat-label">Mẫu Code & Console Output</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Liên Hệ Thực Tế Django</div>
+                    </div>
+                </div>
+
+                <!-- Guide Callout -->
+                <section class="dict-card" id="quick-guide" style="margin-bottom: 3.5rem;">
+                    <div class="dict-header">
+                        <div class="dict-title-group">
+                            <span class="dict-term">📖 Hướng Dẫn Sử Dụng Cẩm Nang Từ Điển</span>
+                            <span class="dict-badge badge-core">Quy ước chuẩn</span>
+                        </div>
+                    </div>
+                    <div class="dict-concept-desc">
+                        Cuốn tài liệu được thiết kế theo nguyên lý <strong>"Đọc code - Thấy ngay kết quả - Hiểu ngay ngữ
+                            cảnh Django"</strong>:
+                    </div>
+                    <div class="split-view-container">
+                        <div class="code-pane">
+                            <div class="pane-header">
+                                <span class="pane-title"><span>💻</span> Khung Code Python</span>
+                                <span style="font-size: 0.7rem; color: var(--text-dim);">editor.py</span>
+                            </div>
+                            <div class="pane-body code-body">
+                                <pre><span class="comment"># Code mẫu chuẩn, có chú thích chi tiết từng dòng</span>
+<span class="kw">def</span> <span class="fn">get_greeting</span>(user_role):
+    <span class="kw">return</span> <span class="str">f"Chào mừng {user_role} đến với Django!"</span>
+
+<span class="builtin">print</span>(get_greeting(<span class="str">"Developer"</span>))</pre>
+                            </div>
+                        </div>
+                        <div class="output-pane">
+                            <div class="pane-header">
+                                <span class="pane-title">
+                                    <span class="terminal-dots">
+                                        <span class="dot dot-red"></span>
+                                        <span class="dot dot-yellow"></span>
+                                        <span class="dot dot-green"></span>
+                                    </span>
+                                    <span>Terminal Console Output (Kết quả đối chiếu)</span>
+                                </span>
+                                <span style="font-size: 0.7rem; color: var(--accent-emerald);">stdout</span>
+                            </div>
+                            <div class="pane-body output-body">
+                                <pre><span class="prompt-sign">$</span> python main.py
+Chào mừng Developer đến với Django!</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="django-context-box">
+                        <div class="box-icon">🎯</div>
+                        <div class="box-content">
+                            <h4>Ứng dụng trực tiếp trong Django:</h4>
+                            <p>Mỗi khái niệm đều có hộp thoại này giải thích tường tận cú pháp đó được Django đưa vào vị
+                                trí nào (ví dụ: dùng trong <code>views.py</code>, cấu hình <code>settings.py</code> hay
+                                khai báo ORM trong <code>models.py</code>).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Cards Grid -->
+                <div class="section-header">
+                    <span class="section-anchor">#</span>
+                    <h2 class="section-title">Danh Mục 10 Chương Chi Tiết</h2>
+                </div>
+
+                <div class="chapters-grid">
+                    <!-- Chapter 1 -->
+                    <a href="chapters/chapter-01-environment.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 01</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Môi Trường & Quản Lý Gói</div>
+                        <div class="card-desc">Thiết lập venv cô lập, quản lý dependencies với pip & requirements.txt,
+                            phân tích cơ chế nạp module sys.path và cấu trúc thư mục dự án Django chuẩn.</div>
+                        <div class="card-tags">
+                            <span class="card-tag">python -m venv</span>
+                            <span class="card-tag">pip freeze</span>
+                            <span class="card-tag">requirements.txt</span>
+                            <span class="card-tag">sys.path</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 2 -->
+                    <a href="chapters/chapter-02-data-structures.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 02</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Cấu Trúc Dữ Liệu Nâng Cao</div>
+                        <div class="card-desc">Thao tác từ điển sâu (.get, .setdefault để bóc tách request), list/dict
+                            comprehensions biến đổi QuerySet, tuple unpacking trong Model Choices và set operations.
+                        </div>
+                        <div class="card-tags">
+                            <span class="card-tag">dict.get()</span>
+                            <span class="card-tag">Comprehensions</span>
+                            <span class="card-tag">Model Choices</span>
+                            <span class="card-tag">F-strings</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 3 -->
+                    <a href="chapters/chapter-03-functions-args-kwargs.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 03</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Hàm Nâng Cao & *args, **kwargs</div>
+                        <div class="card-desc">Làm chủ cơ chế packing/unpacking tham số *args, **kwargs để ghi đè hàm
+                            linh hoạt, hàm First-Class, Closures và nguyên lý Function-Based Views (FBV).</div>
+                        <div class="card-tags">
+                            <span class="card-tag">*args, **kwargs</span>
+                            <span class="card-tag">Closures</span>
+                            <span class="card-tag">First-Class Functions</span>
+                            <span class="card-tag">FBV Pattern</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 4 -->
+                    <a href="chapters/chapter-04-decorators.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 04</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Decorators - Vũ Khí Tối Thượng</div>
+                        <div class="card-desc">Bản chất hàm bọc hàm (wrappers), tại sao phải dùng functools.wraps, xây
+                            dựng decorator có tham số phân quyền và giải mã @login_required, @csrf_exempt.</div>
+                        <div class="card-tags">
+                            <span class="card-tag">@decorator</span>
+                            <span class="card-tag">functools.wraps</span>
+                            <span class="card-tag">@login_required</span>
+                            <span class="card-tag">Custom Middleware</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 5 -->
+                    <a href="chapters/chapter-05-oop-foundations.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 05</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">OOP Nền Tảng Cho Django Models & CBV</div>
+                        <div class="card-desc">Bản chất class và self, kế thừa lớp (Inheritance), hàm super() để
+                            override save() hay get_context_data(), phân biệt rõ Class attribute vs Instance attribute.
+                        </div>
+                        <div class="card-tags">
+                            <span class="card-tag">self & __init__</span>
+                            <span class="card-tag">Kế thừa</span>
+                            <span class="card-tag">super().save()</span>
+                            <span class="card-tag">Class Attributes</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 6 -->
+                    <a href="chapters/chapter-06-oop-advanced-mixins.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 06</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">OOP Nâng Cao, Dunder Methods & Mixins</div>
+                        <div class="card-desc">Phương thức ma thuật (__str__, __repr__ cho Django Admin), @property tạo
+                            computed attributes, @classmethod, đa kế thừa (Multiple Inheritance), MRO và Mixins trong
+                            CBV.</div>
+                        <div class="card-tags">
+                            <span class="card-tag">def __str__(self)</span>
+                            <span class="card-tag">@property</span>
+                            <span class="card-tag">MRO</span>
+                            <span class="card-tag">LoginRequiredMixin</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 7 -->
+                    <a href="chapters/chapter-07-modules-packages.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 07</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Modules, Packages & Imports</div>
+                        <div class="card-desc">Sự khác biệt giữa module và package (__init__.py), relative vs absolute
+                            import (from .models import Post), giải quyết Circular Import trong ForeignKey và entrypoint
+                            manage.py.</div>
+                        <div class="card-tags">
+                            <span class="card-tag">__init__.py</span>
+                            <span class="card-tag">Relative Import</span>
+                            <span class="card-tag">Circular Import</span>
+                            <span class="card-tag">manage.py</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 8 -->
+                    <a href="chapters/chapter-08-exceptions-logging.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 08</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Xử Lý Ngoại Lệ & Logging</div>
+                        <div class="card-desc">Làm chủ cú pháp try/except/else/finally, sơ đồ ngoại lệ Python, giải mã
+                            Http404, ObjectDoesNotExist, ValidationError và thiết lập logging chuyên nghiệp thay vì
+                            print().</div>
+                        <div class="card-tags">
+                            <span class="card-tag">try / except / else</span>
+                            <span class="card-tag">ObjectDoesNotExist</span>
+                            <span class="card-tag">ValidationError</span>
+                            <span class="card-tag">logging.getLogger</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 9 -->
+                    <a href="chapters/chapter-09-context-managers-generators.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 09</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Context Managers, Generators & File I/O</div>
+                        <div class="card-desc">Câu lệnh with, cơ chế __enter__/__exit__ và giải mã transaction.atomic(),
+                            Generator hàm yield xuất dữ liệu lớn không tốn RAM và xử lý file với pathlib.Path.</div>
+                        <div class="card-tags">
+                            <span class="card-tag">with statement</span>
+                            <span class="card-tag">transaction.atomic()</span>
+                            <span class="card-tag">yield (Generators)</span>
+                            <span class="card-tag">pathlib.Path (BASE_DIR)</span>
+                        </div>
+                    </a>
+
+                    <!-- Chapter 10 -->
+                    <a href="chapters/chapter-10-modern-python-async.html" class="chapter-overview-card">
+                        <div class="card-top">
+                            <span class="card-chapter-num">CHƯƠNG 10</span>
+                            <span style="color: var(--accent-blue); font-size: 0.85rem; font-weight: 600;">Xem chi tiết
+                                &rarr;</span>
+                        </div>
+                        <div class="card-title">Modern Python: Type Hints, Dataclass & Async</div>
+                        <div class="card-desc">Khai báo Type hints phục vụ auto-complete và Django Ninja/DRF, @dataclass
+                            mô hình hóa DTO nhẹ nhàng, và nền tảng async/await cho Asynchronous Views trong Django 4/5.
+                        </div>
+                        <div class="card-tags">
+                            <span class="card-tag">Type Hints (typing)</span>
+                            <span class="card-tag">@dataclass</span>
+                            <span class="card-tag">async def / await</span>
+                            <span class="card-tag">Async Views</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Django Mapping Table -->
+                <section class="content-section" id="django-map">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">Bản Đồ Đối Chiếu: Python &rarr; Thành Phần Django</h2>
+                    </div>
+                    <p class="section-lead">Bảng tra cứu nhanh giúp bạn biết ngay khi gặp một tính năng trong Django thì
+                        nền tảng Python cốt lõi nào đang vận hành đằng sau:</p>
+
+                    <div class="dict-table-container">
+                        <table class="dict-table">
+                            <thead>
+                                <tr>
+                                    <th>Kiến thức Python Cốt Lõi</th>
+                                    <th>Chương Học</th>
+                                    <th>Thành phần cụ thể trong Django</th>
+                                    <th>Mục đích sử dụng chính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Class & Kế thừa</code></td>
+                                    <td>Chương 05</td>
+                                    <td><code>models.Model</code>, <code>forms.Form</code>, <code>views.View</code></td>
+                                    <td>Định nghĩa bảng CSDL, form nhập liệu và màn hình hiển thị</td>
+                                </tr>
+                                <tr>
+                                    <td><code>super() method</code></td>
+                                    <td>Chương 05</td>
+                                    <td><code>def save(*args, **kwargs)</code>, <code>get_context_data()</code></td>
+                                    <td>Ghi đè hành vi lưu CSDL hoặc bổ sung dữ liệu vào Template</td>
+                                </tr>
+                                <tr>
+                                    <td><code>*args, **kwargs</code></td>
+                                    <td>Chương 03</td>
+                                    <td>Mọi Class-Based View, Middleware, Signals</td>
+                                    <td>Truyền tham số linh hoạt giữa các tầng kiến trúc của Django</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Decorators (@wrapper)</code></td>
+                                    <td>Chương 04</td>
+                                    <td><code>@login_required</code>, <code>@csrf_exempt</code>,
+                                        <code>@require_POST</code></td>
+                                    <td>Bảo vệ quyền truy cập và phân luồng HTTP methods trong Views</td>
+                                </tr>
+                                <tr>
+                                    <td><code>__str__ Dunder Method</code></td>
+                                    <td>Chương 06</td>
+                                    <td>Mọi Model trong <code>models.py</code></td>
+                                    <td>Hiển thị tên định danh đại diện của bản ghi trên Django Admin</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Mixins & MRO</code></td>
+                                    <td>Chương 06</td>
+                                    <td><code>LoginRequiredMixin</code>, <code>UserPassesTestMixin</code></td>
+                                    <td>Tái sử dụng logic kiểm tra phân quyền cho các Class-Based Views</td>
+                                </tr>
+                                <tr>
+                                    <td><code>@property</code></td>
+                                    <td>Chương 06</td>
+                                    <td>Computed field trên Model (ví dụ: <code>user.full_name</code>)</td>
+                                    <td>Tính toán dữ liệu động từ các cột database mà không cần tạo cột mới</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Context Manager (with)</code></td>
+                                    <td>Chương 09</td>
+                                    <td><code>from django.db import transaction</code>
+                                        (<code>transaction.atomic()</code>)</td>
+                                    <td>Đảm bảo toàn vẹn dữ liệu trong giao dịch CSDL (rollback nếu lỗi)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Generators (yield)</code></td>
+                                    <td>Chương 09</td>
+                                    <td><code>StreamingHttpResponse</code></td>
+                                    <td>Xuất file CSV/Excel hàng trăm ngàn dòng mà không tràn bộ nhớ RAM</td>
+                                </tr>
+                                <tr>
+                                    <td><code>pathlib.Path</code></td>
+                                    <td>Chương 09</td>
+                                    <td><code>settings.py (BASE_DIR / 'templates')</code></td>
+                                    <td>Quản lý đường dẫn thư mục đa nền tảng (Windows/Linux/Mac)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Type Hints & Dataclass</code></td>
+                                    <td>Chương 10</td>
+                                    <td>Django Ninja Schema, Serializers DTO</td>
+                                    <td>Tự động validate kiểu dữ liệu và sinh Swagger API docs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/search-data.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>

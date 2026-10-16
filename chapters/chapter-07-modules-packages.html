@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 07: Modules, Packages & Imports Trong Django | Từ Điển Python</title>
+    <meta name="description"
+        content="Hiểu rõ __init__.py, relative vs absolute imports, giải quyết triệt để lỗi Circular Import và entrypoint manage.py trong Django.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 07</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link active">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-packages" class="sidebar-sublink">&bull; Module vs Package (__init__.py)</a>
+                <a href="#sec-relative-imports" class="sidebar-sublink">&bull; Absolute vs Relative Imports</a>
+                <a href="#sec-circular-import" class="sidebar-sublink">&bull; Circular Import & Khắc phục</a>
+                <a href="#sec-dunder-main" class="sidebar-sublink">&bull; __name__ == '__main__' & manage.py</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 07: Modules, Packages & Imports</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 07 &bull; ARCHITECTURE & MODULARITY</div>
+                    <h1 class="chapter-title">Modules, Packages & Kiến Trúc Dự Án Django</h1>
+                    <p class="chapter-desc">
+                        Một dự án Django lớn được chia thành nhiều ứng dụng con (apps). Nắm vững cách Python quản lý
+                        namespace, nhập xuất module (imports), và đặc biệt là cách xử lý lỗi import vòng (Circular
+                        Import) trong Models và Signals.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Thiết yếu (Essential)</strong></span>
+                        <span class="meta-badge">Chủ đề: <strong>Namespace & Code Organization</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>14 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: Packages -->
+                <section class="content-section" id="sec-packages">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Phân Biệt Module vs Package & Vai Trò Của __init__.py</h2>
+                    </div>
+                    <p class="section-lead">
+                        <strong>Module</strong> là một tệp Python đơn lẻ có đuôi <code>.py</code>.
+                        <strong>Package</strong> là một thư mục chứa tệp đặc biệt <code>__init__.py</code>.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">__init__.py</span>
+                                <span class="dict-badge badge-core">Package Marker</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Khi Python thấy thư mục có <code>__init__.py</code>, nó sẽ xem toàn bộ thư mục đó là một
+                            Package hợp lệ và cho phép các file bên ngoài dùng cú pháp dấu chấm <code>.</code> để import
+                            vào bên trong.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>📂</span> Cấu trúc thư mục App trong Django</span>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre>my_django_project/
+├── manage.py
+├── core_settings/
+│   ├── __init__.py           <span class="comment"># Đánh dấu core_settings là 1 package</span>
+│   ├── settings.py
+│   └── urls.py
+└── blog/                     <span class="comment"># Django App "blog"</span>
+    ├── __init__.py           <span class="comment"># Đánh dấu blog là 1 package</span>
+    ├── models.py
+    └── views.py</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Cú pháp import tương ứng</span>
+                                    </span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="comment"># Nhờ có __init__.py, bạn có thể viết:</span>
+<span class="kw">from</span> core_settings <span class="kw">import</span> settings
+<span class="kw">from</span> blog.models <span class="kw">import</span> Post
+<span class="kw">from</span> blog.views <span class="kw">import</span> PostListView
+
+<span style="color: #6ee7b7;">✔ Cú pháp dấu chấm '.' phản ánh chính xác
+  cấu trúc thư mục của Package trên ổ cứng.</span></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Relative vs Absolute Imports -->
+                <section class="content-section" id="sec-relative-imports">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. Absolute Imports vs Relative Imports</h2>
+                    </div>
+                    <p class="section-lead">
+                        Hiểu khi nào nên dùng <code>from .models import Post</code> (Relative) và khi nào dùng
+                        <code>from blog.models import Post</code> (Absolute).
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">from . import models vs from app import models</span>
+                                <span class="dict-badge badge-django">Import Rules</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> blog/views.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># 1. RELATIVE IMPORT (1 dấu chấm '.' là cùng thư mục hiện tại):</span>
+<span class="kw">from</span> .models <span class="kw">import</span> Post, Comment
+<span class="kw">from</span> .forms <span class="kw">import</span> CommentForm
+
+<span class="comment"># 2 dấu chấm '..' là lùi lên 1 cấp thư mục cha:</span>
+<span class="kw">from</span> ..shared_utils.helpers <span class="kw">import</span> slugify_vietnamese
+
+<span class="comment"># 2. ABSOLUTE IMPORT (Đi từ thư mục gốc của dự án):</span>
+<span class="kw">from</span> django.shortcuts <span class="kw">import</span> render, get_object_or_404
+<span class="kw">from</span> users.models <span class="kw">import</span> UserProfile
+
+<span class="kw">def</span> <span class="fn">post_detail</span>(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    <span class="kw">return</span> render(request, <span class="str">"blog/detail.html"</span>, {<span class="str">"post"</span>: post})</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Quy ước chuẩn PEP 8 & Django</span>
+                                    </span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span style="color: #6ee7b7;">✔ Trong nội bộ 1 Django App:</span>
+  Dùng relative <code>from .models import ...</code>
+  Ưu điểm: Nếu sau này bạn đổi tên app 'blog'
+  thành 'articles', toàn bộ code bên trong
+  views.py vẫn hoạt động bình thường!
+
+<span style="color: #6ee7b7;">✔ Khi gọi chéo giữa các Django Apps khác nhau:</span>
+  Bắt buộc dùng absolute: <code>from users.models ...</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Circular Import -->
+                <section class="content-section" id="sec-circular-import">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Cơn Ác Mộng Circular Import & 3 Cách Giải Quyết</h2>
+                    </div>
+                    <p class="section-lead">
+                        Xảy ra khi Module A cố gắng import Module B, nhưng trong khi đó Module B lại đang cố gắng import
+                        ngược lại Module A!
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">Circular Import Solutions</span>
+                                <span class="dict-badge badge-advanced">Critical Fix</span>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">💡</div>
+                            <div class="box-content">
+                                <h4>3 Cách Giải Quyết Triệt Để Trong Django:</h4>
+                                <p>
+                                    <strong>1. Dùng String Reference cho ForeignKey:</strong><br>
+                                    Thay vì <code>author = models.ForeignKey(User, ...)</code> (yêu cầu phải import
+                                    class User), hãy dùng chuỗi chuỗi tên Model:
+                                    <code>author = models.ForeignKey('auth.User', ...)</code> hoặc
+                                    <code>'users.UserProfile'</code>. Django sẽ tự động trì hoãn liên kết cho đến khi cả
+                                    2 model đã được tải xong!<br><br>
+                                    <strong>2. Local / Lazy Import bên trong hàm:</strong><br>
+                                    Đặt lệnh <code>import ...</code> bên trong thân của hàm hoặc phương thức cụ thể thay
+                                    vì đặt ở đầu file.<br><br>
+                                    <strong>3. Đăng ký Signals trong AppConfig.ready():</strong><br>
+                                    Trong <code>apps.py</code>:
+                                <pre
+                                    style="background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; margin-top: 0.4rem; color: #a7f3d0;"><span class="kw">class</span> <span class="cls">BlogConfig</span>(AppConfig):
+    name = <span class="str">'blog'</span>
+    <span class="kw">def</span> <span class="fn">ready</span>(self):
+        <span class="kw">import</span> blog.signals  <span class="comment"># Chỉ nạp signals sau khi toàn bộ ORM Models đã sẵn sàng!</span></pre>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: dunder main -->
+                <section class="content-section" id="sec-dunder-main">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Giải Mã __name__ == '__main__' Trong manage.py</h2>
+                    </div>
+                    <p class="section-lead">
+                        Tại sao trong file <code>manage.py</code> luôn có câu lệnh
+                        <code>if __name__ == '__main__':</code>?
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">if __name__ == '__main__'</span>
+                                <span class="dict-badge badge-core">Entrypoint Guard</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> manage.py (Giải mã mã nguồn Django)</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">import</span> os
+<span class="kw">import</span> sys
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    <span class="comment"># Thiết lập biến môi trường trỏ tới file settings của dự án</span>
+    os.environ.setdefault(<span class="str">'DJANGO_SETTINGS_MODULE'</span>, <span class="str">'myproject.settings'</span>)
+    <span class="kw">try</span>:
+        <span class="kw">from</span> django.core.management <span class="kw">import</span> execute_from_command_line
+    <span class="kw">except</span> ImportError <span class="kw">as</span> exc:
+        <span class="kw">raise</span> ImportError(<span class="str">"Không tìm thấy Django. Bạn đã activate venv chưa?"</span>) <span class="kw">from</span> exc
+    
+    <span class="comment"># Chạy các lệnh như runserver, makemigrations</span>
+    execute_from_command_line(sys.argv)
+
+<span class="comment"># Khối lệnh này chỉ chạy khi file được gõ trực tiếp qua terminal:</span>
+<span class="comment"># $ python manage.py runserver</span>
+<span class="comment"># Nếu file này bị import từ nơi khác, khối này sẽ KHÔNG chạy!</span>
+<span class="kw">if</span> __name__ == <span class="str">'__main__'</span>:
+    main()</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Quy luật biến __name__ của Python</span>
+                                    </span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span style="color: #6ee7b7;">✔ Khi chạy trực tiếp:</span>
+  $ python manage.py
+  -> Python tự động gán: <code>__name__ = "__main__"</code>
+  -> Điều kiện True: Lệnh main() kích hoạt!
+
+<span style="color: #6ee7b7;">✔ Khi bị import từ file khác:</span>
+  import manage
+  -> Python gán: <code>__name__ = "manage"</code>
+  -> Điều kiện False: Không chạy gì cả (An toàn!)</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 06: OOP Nâng Cao & Mixins</span>
+                        </div>
+                    </a>
+                    <a href="chapter-08-exceptions-logging.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 08: Ngoại Lệ & Logging &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

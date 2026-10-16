@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 02: Cấu Trúc Dữ Liệu Nâng Cao | Từ Điển Python Cho Django</title>
+    <meta name="description"
+        content="Thao tác từ điển sâu, list & dict comprehensions, tuple unpacking trong Model choices và set operations trong Django.">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="brand-wrapper">
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+            <a href="../index.html" class="brand-logo" style="text-decoration: none;">Py</a>
+            <div>
+                <a href="../index.html" class="brand-title" style="text-decoration: none;">PythonCore &rarr; Django</a>
+                <span class="brand-subtitle">Chương 02</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="globalSearchInput"
+                    placeholder="Tra cứu trong tài liệu... (Nhấn /)" autocomplete="off">
+                <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="site-sidebar" id="siteSidebar">
+            <div class="sidebar-heading">Mục Lục 10 Chương</div>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="chapter-01-environment.html" class="sidebar-link">
+                        <span class="chapter-num">01</span>
+                        <span>Môi trường & Quản lý gói</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-02-data-structures.html" class="sidebar-link active">
+                        <span class="chapter-num">02</span>
+                        <span>Cấu trúc dữ liệu nâng cao</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-03-functions-args-kwargs.html" class="sidebar-link">
+                        <span class="chapter-num">03</span>
+                        <span>Hàm & *args / **kwargs</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-04-decorators.html" class="sidebar-link">
+                        <span class="chapter-num">04</span>
+                        <span>Decorators chuyên sâu</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-05-oop-foundations.html" class="sidebar-link">
+                        <span class="chapter-num">05</span>
+                        <span>OOP Nền tảng (Class, super())</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-06-oop-advanced-mixins.html" class="sidebar-link">
+                        <span class="chapter-num">06</span>
+                        <span>OOP Nâng cao & Mixins</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-07-modules-packages.html" class="sidebar-link">
+                        <span class="chapter-num">07</span>
+                        <span>Modules, Packages & Imports</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-08-exceptions-logging.html" class="sidebar-link">
+                        <span class="chapter-num">08</span>
+                        <span>Ngoại lệ (Exception) & Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-09-context-managers-generators.html" class="sidebar-link">
+                        <span class="chapter-num">09</span>
+                        <span>Context Manager & Generator</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="chapter-10-modern-python-async.html" class="sidebar-link">
+                        <span class="chapter-num">10</span>
+                        <span>Modern Python & Async Views</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-heading">Nội dung chương này</div>
+            <div style="padding: 0 0.75rem;">
+                <a href="#sec-dict-get" class="sidebar-sublink">&bull; Dictionary .get() an toàn</a>
+                <a href="#sec-comprehensions" class="sidebar-sublink">&bull; List & Dict Comprehension</a>
+                <a href="#sec-tuples" class="sidebar-sublink">&bull; Tuples & Model Choices</a>
+                <a href="#sec-sets" class="sidebar-sublink">&bull; Sets & Phân quyền</a>
+                <a href="#sec-fstrings" class="sidebar-sublink">&bull; F-strings & URL Slugs</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Trang chủ</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span>Chương 02: Cấu trúc dữ liệu nâng cao</span>
+                </nav>
+
+                <!-- Chapter Hero -->
+                <header class="chapter-hero">
+                    <div class="chapter-tag">CHƯƠNG 02 &bull; THAO TÁC DỮ LIỆU</div>
+                    <h1 class="chapter-title">Cấu Trúc Dữ Liệu Nâng Cao & Tối Ưu Xử Lý</h1>
+                    <p class="chapter-desc">
+                        Trong Django, mọi dữ liệu nhận từ người dùng (`request.GET`, `request.POST`), dữ liệu đưa vào
+                        Template (`context`) hay trích xuất từ database (`QuerySet`) đều xoay quanh các cấu trúc
+                        Dictionary, List, Tuple và Set của Python.
+                    </p>
+                    <div class="chapter-meta-badges">
+                        <span class="meta-badge">Mức độ: <strong>Cốt lõi (Crucial)</strong></span>
+                        <span class="meta-badge">Tần suất dùng: <strong>Liên tục mọi file</strong></span>
+                        <span class="meta-badge">Thời gian đọc: <strong>15 phút</strong></span>
+                    </div>
+                </header>
+
+                <!-- Section 1: dict.get -->
+                <section class="content-section" id="sec-dict-get">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">1. Dictionary: .get() & .setdefault() An Toàn</h2>
+                    </div>
+                    <p class="section-lead">
+                        Truy cập phần tử từ điển theo cách truyền thống <code>data['key']</code> sẽ văng ra
+                        <code>KeyError</code> nếu key không tồn tại, khiến web server trả về mã lỗi 500! Dưới đây là
+                        cách chuẩn chỉ để trích xuất dữ liệu HTTP request trong Django.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">dict.get(key, default=None)</span>
+                                <span class="dict-badge badge-core">Data Extraction</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Trích xuất giá trị nếu key có trong từ điển; nếu không có, trả về giá trị mặc định thay vì
+                            làm crash chương trình.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> dict_extraction.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Giả lập request.GET nhận từ URL: /products?page=2</span>
+request_get = {<span class="str">"page"</span>: <span class="str">"2"</span>}
+
+<span class="comment"># ❌ Cách nguy hiểm:</span>
+<span class="comment"># sort_order = request_get["sort"] -> Bị lỗi KeyError! Crash app!</span>
+
+<span class="comment"># ✅ Cách chuẩn Django: Dùng .get()</span>
+page_number = request_get.get(<span class="str">"page"</span>, <span class="str">"1"</span>)
+sort_order = request_get.get(<span class="str">"sort"</span>, <span class="str">"created_at"</span>)
+category = request_get.get(<span class="str">"category"</span>) <span class="comment"># mặc định là None</span>
+
+<span class="builtin">print</span>(<span class="str">f"Trang hiện tại: {page_number}"</span>)
+<span class="builtin">print</span>(<span class="str">f"Tiêu chí sắp xếp: {sort_order}"</span>)
+<span class="builtin">print</span>(<span class="str">f"Danh mục: {category}"</span>)
+
+<span class="comment"># setdefault(): Thêm key nếu chưa có, lấy key nếu đã có</span>
+session_cart = {}
+session_cart.setdefault(<span class="str">"items"</span>, []).append({<span class="str">"id"</span>: <span class="num">101</span>, <span class="str">"qty"</span>: <span class="num">1</span>})
+<span class="builtin">print</span>(<span class="str">"Giỏ hàng:"</span>, session_cart)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python dict_extraction.py
+Trang hiện tại: 2
+Tiêu chí sắp xếp: created_at
+Danh mục: None
+Giỏ hàng: {'items': [{'id': 101, 'qty': 1}]}</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong <code>views.py</code>, bạn sẽ liên tục viết:
+                                    <code>keyword = request.GET.get('q', '')</code> hoặc
+                                    <code>email = request.POST.get('email')</code>. Không bao giờ dùng ngoặc vuông
+                                    <code>request.POST['email']</code> vì nếu form thiếu trường đó người dùng sẽ thấy
+                                    trang báo lỗi 500 khó chịu.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Comprehensions -->
+                <section class="content-section" id="sec-comprehensions">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">2. List & Dictionary Comprehensions</h2>
+                    </div>
+                    <p class="section-lead">
+                        Viết code gọn gàng, tốc độ thực thi cao hơn vòng lặp <code>for</code> thông thường khi cần biến
+                        đổi dữ liệu trả về từ Database QuerySet.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">[expr for item in iterable if condition]</span>
+                                <span class="dict-badge badge-core">Transform & Filter</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Tạo danh sách hoặc từ điển mới chỉ bằng một biểu thức ngắn gọn, thanh lịch.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> comprehensions_demo.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Giả lập danh sách bài viết lấy từ Django ORM: Post.objects.all()</span>
+posts = [
+    {<span class="str">"id"</span>: <span class="num">1</span>, <span class="str">"title"</span>: <span class="str">"Học Python Cơ Bản"</span>, <span class="str">"is_published"</span>: <span class="kw">True</span>},
+    {<span class="str">"id"</span>: <span class="num">2</span>, <span class="str">"title"</span>: <span class="str">"Django Models Toàn Tập"</span>, <span class="str">"is_published"</span>: <span class="kw">False</span>},
+    {<span class="str">"id"</span>: <span class="num">3</span>, <span class="str">"title"</span>: <span class="str">"Triển Khai VPS Nginx"</span>, <span class="str">"is_published"</span>: <span class="kw">True</span>},
+]
+
+<span class="comment"># 1. List Comprehension: Lọc và lấy danh sách tiêu đề bài đã xuất bản</span>
+published_titles = [p[<span class="str">"title"</span>] <span class="kw">for</span> p <span class="kw">in</span> posts <span class="kw">if</span> p[<span class="str">"is_published"</span>]]
+<span class="builtin">print</span>(<span class="str">"Tiêu đề đã xuất bản:"</span>, published_titles)
+
+<span class="comment"># 2. Dict Comprehension: Tạo bảng tra cứu nhanh theo ID (ID -> Title)</span>
+post_lookup = {p[<span class="str">"id"</span>]: p[<span class="str">"title"</span>] <span class="kw">for</span> p <span class="kw">in</span> posts}
+<span class="builtin">print</span>(<span class="str">"Tra cứu nhanh Post ID=3:"</span>, post_lookup.get(<span class="num">3</span>))</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python comprehensions_demo.py
+Tiêu đề đã xuất bản: ['Học Python Cơ Bản', 'Triển Khai VPS Nginx']
+Tra cứu nhanh Post ID=3: Triển Khai VPS Nginx</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Thường dùng khi chuẩn bị context gửi sang Template hoặc render JSON API:
+                                    <code>user_ids = [user.id for user in queryset]</code> hoặc chuẩn bị dữ liệu cho
+                                    biểu đồ Chart.js thống kê doanh thu.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Tuples & Model Choices -->
+                <section class="content-section" id="sec-tuples">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">3. Tuples & Cặp Giá Trị trong Model Choices</h2>
+                    </div>
+                    <p class="section-lead">
+                        Tuple là cấu trúc bất biến (immutable). Django sử dụng tuple of tuples hoặc
+                        <code>models.TextChoices</code> để tạo dropdown danh sách chọn trong form và admin.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">Tuple Unpacking & Choices</span>
+                                <span class="dict-badge badge-django">Django Models</span>
+                            </div>
+                        </div>
+                        <div class="dict-concept-desc">
+                            Mỗi mục trong Choices luôn là một cặp tuple gồm:
+                            <code>(Giá_trị_lưu_vào_Database, Tên_hiển_thị_trên_Giao_diện)</code>.
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> model_choices_pattern.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Định nghĩa danh sách trạng thái đơn hàng (Django Model Choices)</span>
+ORDER_STATUS_CHOICES = (
+    (<span class="str">"PENDING"</span>, <span class="str">"Chờ xác nhận"</span>),
+    (<span class="str">"SHIPPING"</span>, <span class="str">"Đang giao hàng"</span>),
+    (<span class="str">"COMPLETED"</span>, <span class="str">"Đã hoàn thành"</span>),
+    (<span class="str">"CANCELLED"</span>, <span class="str">"Đã hủy"</span>),
+)
+
+<span class="comment"># Tuple Unpacking trong vòng lặp</span>
+<span class="builtin">print</span>(<span class="str">"Danh sách hiển thị trong dropdown chọn lọc:"</span>)
+<span class="kw">for</span> db_code, label <span class="kw">in</span> ORDER_STATUS_CHOICES:
+    <span class="builtin">print</span>(<span class="str">f" [Option] Mã DB: {db_code:&lt;10} -> Nhãn: {label}"</span>)
+
+<span class="comment"># Tuple Unpacking hoán đổi giá trị mà không cần biến tạm</span>
+a, b = <span class="num">100</span>, <span class="num">200</span>
+a, b = b, a
+<span class="builtin">print</span>(<span class="str">f"Sau khi hoán đổi: a={a}, b={b}"</span>)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python model_choices_pattern.py
+Danh sách hiển thị trong dropdown chọn lọc:
+ [Option] Mã DB: PENDING    -> Nhãn: Chờ xác nhận
+ [Option] Mã DB: SHIPPING   -> Nhãn: Đang giao hàng
+ [Option] Mã DB: COMPLETED  -> Nhãn: Đã hoàn thành
+ [Option] Mã DB: CANCELLED  -> Nhãn: Đã hủy
+Sau khi hoán đổi: a=200, b=100</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Trong <code>models.py</code>:
+                                    <code>status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='PENDING')</code>.
+                                    Django sẽ tự động sinh hàm <code>order.get_status_display()</code> trả về nhãn tiếng
+                                    Việt tương ứng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Sets & Permissions -->
+                <section class="content-section" id="sec-sets">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">4. Set Operations & Kiểm Tra Quyền Hạn (Permissions)</h2>
+                    </div>
+                    <p class="section-lead">
+                        Tập hợp (Set) chứa các phần tử duy nhất (unique) và hỗ trợ các phép toán giao (&), hợp (|), trừ
+                        (-) với độ phức tạp tìm kiếm cực nhanh O(1).
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">set.intersection() & issubset()</span>
+                                <span class="dict-badge badge-core">Fast Membership Test</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> permissions_check.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="comment"># Quyền mà user hiện tại đang có (lấy từ các nhóm và vai trò)</span>
+user_permissions = {<span class="str">"blog.view_post"</span>, <span class="str">"blog.add_post"</span>}
+
+<span class="comment"># Quyền tối thiểu yêu cầu để xóa bài viết</span>
+required_for_delete = {<span class="str">"blog.delete_post"</span>}
+
+<span class="comment"># Kiểm tra xem user có quyền xóa không</span>
+can_delete = bool(user_permissions & required_for_delete)
+<span class="builtin">print</span>(<span class="str">"User có thể xóa bài viết không?"</span>, can_delete)
+
+<span class="comment"># Kiểm tra yêu cầu nhiều quyền cùng lúc:</span>
+required_all = {<span class="str">"blog.view_post"</span>, <span class="str">"blog.add_post"</span>}
+has_all = required_all.issubset(user_permissions)
+<span class="builtin">print</span>(<span class="str">"User có đủ mọi quyền yêu cầu không?"</span>, has_all)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python permissions_check.py
+User có thể xóa bài viết không? False
+User có đủ mọi quyền yêu cầu không? True</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Hệ thống bảo mật <code>django.contrib.auth</code> lưu toàn bộ permission codenames
+                                    của user dưới dạng Python Set trong bộ nhớ cache để hàm
+                                    <code>user.has_perm('app.change_item')</code> chạy tức thì không cần query lại
+                                    database nhiều lần.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: F-strings & URL Slugs -->
+                <section class="content-section" id="sec-fstrings">
+                    <div class="section-header">
+                        <span class="section-anchor">#</span>
+                        <h2 class="section-title">5. F-strings: Format URL, Slugs & Đường Dẫn Upload</h2>
+                    </div>
+                    <p class="section-lead">
+                        F-strings (Formatted String Literals) là chuẩn format chuỗi hiện đại và nhanh nhất của Python từ
+                        phiên bản 3.6 trở đi.
+                    </p>
+
+                    <div class="dict-card">
+                        <div class="dict-header">
+                            <div class="dict-title-group">
+                                <span class="dict-term">f"strings with {expression}"</span>
+                                <span class="dict-badge badge-core">Formatting</span>
+                            </div>
+                        </div>
+
+                        <div class="split-view-container">
+                            <div class="code-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title"><span>💻</span> fstrings_django_urls.py</span>
+                                    <button class="copy-btn"><span>📋 Copy</span></button>
+                                </div>
+                                <div class="pane-body code-body">
+                                    <pre><span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+user_id = <span class="num">42</span>
+username = <span class="str">"qtri"</span>
+slug = <span class="str">"django-deep-dive"</span>
+now = datetime(<span class="num">2026</span>, <span class="num">10</span>, <span class="num">16</span>)
+
+<span class="comment"># 1. Tạo canonical URL cho bài viết</span>
+canonical_url = <span class="str">f"/articles/{now.year}/{now.month:02d}/{slug}/"</span>
+<span class="builtin">print</span>(<span class="str">"URL bài viết:"</span>, canonical_url)
+
+<span class="comment"># 2. Tạo đường dẫn lưu ảnh tải lên theo user và ngày tháng</span>
+avatar_filename = <span class="str">"profile.png"</span>
+upload_path = <span class="str">f"uploads/users/{user_id}_{username}/{now:%Y/%m}/{avatar_filename}"</span>
+<span class="builtin">print</span>(<span class="str">"Đường dẫn lưu file trên S3 / Server:"</span>, upload_path)</pre>
+                                </div>
+                            </div>
+
+                            <div class="output-pane">
+                                <div class="pane-header">
+                                    <span class="pane-title">
+                                        <span class="terminal-dots">
+                                            <span class="dot dot-red"></span>
+                                            <span class="dot dot-yellow"></span>
+                                            <span class="dot dot-green"></span>
+                                        </span>
+                                        <span>Terminal Output Đối Chiếu</span>
+                                    </span>
+                                    <span style="color: var(--accent-emerald);">stdout</span>
+                                </div>
+                                <div class="pane-body output-body">
+                                    <pre><span class="prompt-sign">$</span> python fstrings_django_urls.py
+URL bài viết: /articles/2026/10/django-deep-dive/
+Đường dẫn lưu file trên S3 / Server: uploads/users/42_qtri/2026/10/profile.png</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="django-context-box">
+                            <div class="box-icon">🎯</div>
+                            <div class="box-content">
+                                <h4>Ứng dụng trực tiếp trong Django:</h4>
+                                <p>Hàm <code>get_absolute_url()</code> trên Model hoặc tham số <code>upload_to</code>
+                                    trên <code>models.FileField</code> đều dùng f-strings để sinh cấu trúc thư mục lưu
+                                    file gọn gàng, tránh việc trùng tên ảnh của người dùng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chapter Navigation Footer -->
+                <div class="chapter-nav-footer">
+                    <a href="chapter-01-environment.html" class="nav-btn nav-btn-prev">
+                        <span>&larr;</span>
+                        <div>
+                            <span class="nav-btn-label">Chương trước</span>
+                            <span>Chương 01: Môi Trường & Gói</span>
+                        </div>
+                    </a>
+                    <a href="chapter-03-functions-args-kwargs.html" class="nav-btn nav-btn-next">
+                        <div>
+                            <span class="nav-btn-label">Chương tiếp theo</span>
+                            <span>Chương 03: Hàm & *args / **kwargs &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/search-data.js"></script>
+    <script src="../assets/js/app.js"></script>
+</body>
+
+</html>
